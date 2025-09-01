@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Refund Tracking System - Noon & Careem</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f6fa; padding:20px; }
+    h2 { color:#2c3e50; }
+    .section { background:#fff; padding:20px; margin-bottom:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input, select, button {
+      padding:10px; margin-top:5px; width:100%; border:1px solid #ccc; border-radius:8px;
+    }
+    button { background:#007bff; color:#fff; cursor:pointer; transition:0.3s; }
+    button:hover { background:#0056b3; }
+    table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
+    th, td { border:1px solid #ccc; padding:10px; text-align:center; }
+    th { background:#ecf0f1; }
+    tr:nth-child(even) { background:#f9f9f9; }
+  </style>
+</head>
+<body>
+
+  <h2>📊 Refund Tracking System (Noon & Careem)</h2>
+
+  <!-- Manual Entry -->
+  <div class="section">
+    <h3>➕ Manual Entry</h3>
+    <label>Platform</label>
+    <select id="platform">
+      <option value="Noon">Noon</option>
+      <option value="Careem">Careem</option>
+    </select>
+
+    <label>Orders</label>
+    <input type="number" id="orders" placeholder="Number of orders">
+
+    <label>Basket Amount (AED)</label>
+    <input type="number" id="basket" placeholder="Total basket amount">
+
+    <label>Refund Amount (AED)</label>
+    <input type="number" id="refund" placeholder="Refund value">
+
+    <label>Reason</label>
+    <select id="reason">
+      <option value="Missing Item">Missing Item</option>
+      <option value="Wrong Item">Wrong Item</option>
+      <option value="Damaged">Damaged</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <button onclick="addManualData()">Add</button>
+  </div>
+
+  <!-- File Upload -->
+  <div class="section">
+    <h3>📂 Upload CSV File (Noon or Careem)</h3>
+    <input type="file" id="fileInput" accept=".csv" onchange="uploadFile()">
+    <small>📌 CSV must include: Platform, Orders, Basket, Refund, Reason</small>
+  </div>
+
+  <!-- Data Table -->
+  <div class="section">
+    <h3>📋 Entered Data</h3>
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Orders</th>
+          <th>Basket Amount (AED)</th>
+          <th>Refund Amount (AED)</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Chart -->
+  <div class="section">
+    <h3>📊 Refund Comparison</h3>
+    <canvas id="refundChart" height="120"></canvas>
+  </div>
+
+<script>
+let chart;
+const tableBody = document.querySelector("#dataTable tbody");
+let platformData = { Noon:0, Careem:0 };
+
+function addRow(platform, orders, basket, refund, reason) {
+  const row = `<tr>
+    <td>${platform}</td>
+    <td>${orders}</td>
+    <td>${basket.toFixed(2)}</td>
+    <td>${refund.toFixed(2)}</td>
+    <td>${reason}</td>
+  </tr>`;
+  tableBody.innerHTML += row;
+  platformData[platform] += refund;
+  updateChart();
+}
+
+// Manual Entry
+function addManualData() {
+  const platform = document.getElementById("platform").value;
+  const orders = parseInt(document.getElementById("orders").value) || 0;
+  const basket = parseFloat(document.getElementById("basket").value) || 0;
+  const refund = parseFloat(document.getElementById("refund").value) || 0;
+  const reason = document.getElementById("reason").value;
+  addRow(platform, orders, basket, refund, reason);
+}
+
+// Upload CSV
+function uploadFile() {
+  const file = document.getElementById("fileInput").files[0];
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      results.data.forEach(row => {
+        const platform = row.Platform;
+        const orders = parseInt(row.Orders) || 0;
+        const basket = parseFloat(row.Basket) || 0;
+        const refund = parseFloat(row.Refund) || 0;
+        const reason = row.Reason || "Other";
+        addRow(platform, orders, basket, refund, reason);
+      });
+    }
+  });
+}
+
+// Update Chart
+function updateChart() {
+  const ctx = document.getElementById('refundChart').getContext('2d');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Noon','Careem'],
+      datasets:[{
+        label:'Total Refunds (AED)',
+        data:[platformData.Noon, platformData.Careem],
+        backgroundColor:['#f39c12','#3498db']
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ display:true, position:"bottom" } }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
