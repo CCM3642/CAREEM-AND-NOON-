@@ -26,6 +26,8 @@
       --nav-active: #1a252f;
       --overlay-bg: rgba(0,0,0,0.5);
       --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --talabat-color: #ff6b35;
+      --tabna-color: #4a90e2;
     }
     
     * {
@@ -799,6 +801,8 @@
       box-shadow: var(--card-shadow);
       text-align: center;
       transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
     
     .payment-method-card:hover {
@@ -821,6 +825,30 @@
     .payment-method-card .percentage {
       font-size: 0.9rem;
       color: #666;
+    }
+    
+    .payment-method-card .method-name {
+      font-size: 0.8rem;
+      color: var(--dark);
+      margin-top: 5px;
+      font-weight: 500;
+    }
+    
+    /* Special styling for TALABAT and TABNA */
+    .payment-method-card.talabat {
+      border-top: 3px solid var(--talabat-color);
+    }
+    
+    .payment-method-card.talabat .icon {
+      color: var(--talabat-color);
+    }
+    
+    .payment-method-card.tabna {
+      border-top: 3px solid var(--tabna-color);
+    }
+    
+    .payment-method-card.tabna .icon {
+      color: var(--tabna-color);
     }
     
     /* Pagination */
@@ -968,6 +996,27 @@
     .excel-month-card .transaction-count {
       font-size: 0.9rem;
       color: #666;
+    }
+    
+    /* Performance indicators */
+    .performance-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    
+    .performance-high {
+      background-color: var(--success-green);
+    }
+    
+    .performance-medium {
+      background-color: var(--warning);
+    }
+    
+    .performance-low {
+      background-color: var(--danger-red);
     }
     
     /* Responsive */
@@ -2019,16 +2068,16 @@
       "Crispy Chicken-ELctria"
     ],
     monetaryColumns: [
-      "Receipts","Keeta CARD","Cash","NOON CARD","Master card","Visa Card","Careem CARD",
+      "Receipts","TALABAT","TABNA","Keeta CARD","Cash","NOON CARD","Master card","Visa Card","Careem CARD",
       "Delivery CARD","SMILES CARD","Delivery Cash","DELIVERO CARD","ONLINE CASH","ONLINE CARD"
     ],
     countColumns: [
-      "Count_Receipts","Count_Keeta","Count_Cash","Count_NOON","Count_Master","Count_Visa",
+      "Count_Receipts","Count_TALABAT","Count_TABNA","Count_Keeta","Count_Cash","Count_NOON","Count_Master","Count_Visa",
       "Count_Careem","Count_DeliveryCard","Count_SMILES","Count_DeliveryCash","Count_DELIVERO",
       "Count_ONLINE_Cash","Count_ONLINE_Card"
     ],
-    monetaryValues: [110150.50,30231.60,20848.00,13624.00,13404.00,13333.00,5166.00,4610.90,3903.00,3050.00,850.00,824.00,306.00],
-    countValues: [3483,636,992,351,541,517,106,79,170,53,17,16,5]
+    monetaryValues: [110150.50,25000.00,18000.00,30231.60,20848.00,13624.00,13404.00,13333.00,5166.00,4610.90,3903.00,3050.00,850.00,824.00,306.00],
+    countValues: [3483,800,600,636,992,351,541,517,106,79,170,53,17,16,5]
   };
 
   // --- DATA PERSISTENCE ---
@@ -2522,9 +2571,9 @@
       totals.receipts += parseFloat(row.Receipts || 0);
       totals.cash += parseFloat(row.Cash || 0);
       
-      // Calculate card payments
+      // Calculate card payments including TALABAT and TABNA
       const cardPayments = [
-        'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
+        'TALABAT', 'TABNA', 'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
         'Careem CARD', 'Delivery CARD', 'SMILES CARD', 'DELIVERO CARD'
       ];
       cardPayments.forEach(method => {
@@ -2580,9 +2629,9 @@
     const paymentMethods = {};
     
     data.forEach(row => {
-      // Calculate card payments
+      // Calculate card payments including TALABAT and TABNA
       const cardPayments = [
-        'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
+        'TALABAT', 'TABNA', 'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
         'Careem CARD', 'Delivery CARD', 'SMILES CARD', 'DELIVERO CARD'
       ];
       cardPayments.forEach(method => {
@@ -2639,14 +2688,28 @@
     paymentMethodsCard.innerHTML = `
       <h3><i class="fas fa-money-bill-wave"></i> Payment Breakdown</h3>
       <div class="payment-methods-grid">
-        ${Object.entries(paymentMethods).map(([method, amount]) => `
-          <div class="payment-method-card">
-            <div class="icon"><i class="fas fa-credit-card"></i></div>
-            <div class="amount">AED ${amount.toLocaleString()}</div>
-            <div class="percentage">${totals.receipts > 0 ? ((amount / totals.receipts) * 100).toFixed(1) : 0}%</div>
-            <div class="method-name">${method}</div>
-          </div>
-        `).join('')}
+        ${Object.entries(paymentMethods).map(([method, amount]) => {
+          // Add special styling for TALABAT and TABNA
+          let iconClass = 'fas fa-credit-card';
+          let specialClass = '';
+          if (method === 'TALABAT') {
+            iconClass = 'fas fa-motorcycle';
+            specialClass = 'talabat';
+          }
+          if (method === 'TABNA') {
+            iconClass = 'fas fa-truck';
+            specialClass = 'tabna';
+          }
+          
+          return `
+            <div class="payment-method-card ${specialClass}">
+              <div class="icon"><i class="${iconClass}"></i></div>
+              <div class="amount">AED ${amount.toLocaleString()}</div>
+              <div class="percentage">${totals.receipts > 0 ? ((amount / totals.receipts) * 100).toFixed(1) : 0}%</div>
+              <div class="method-name">${method}</div>
+            </div>
+          `;
+        }).join('')}
       </div>
     `;
     dashboard.appendChild(paymentMethodsCard);
@@ -2771,6 +2834,8 @@
       const tr = document.createElement('tr');
       
       // Calculate card and online payments
+      const talabatPayment = parseFloat(row.TALABAT || 0);
+      const tabnaPayment = parseFloat(row.TABNA || 0);
       const cardPayments = [
         'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
         'Careem CARD', 'Delivery CARD', 'SMILES CARD', 'DELIVERO CARD'
@@ -2788,7 +2853,7 @@
         <td>AED ${receipts.toLocaleString()}</td>
         <td>${percentage}%</td>
         <td>AED ${cashPayment.toLocaleString()}</td>
-        <td>AED ${cardPayments.toLocaleString()}</td>
+        <td>AED ${(cardPayments + talabatPayment + tabnaPayment).toLocaleString()}</td>
         <td>AED ${onlinePayments.toLocaleString()}</td>
         <td>
           <button class="action-btn" onclick="viewExcelRowDetails(${index})" title="View Details" aria-label="View details">
@@ -2869,7 +2934,7 @@
         Year: new Date().getFullYear() // Default to current year
       };
       
-      // Add monetary columns
+      // Add monetary columns including TALABAT and TABNA
       excelSalesTemplate.monetaryColumns.forEach((col, index) => {
         row[col] = 0; // Initialize with 0
       });
