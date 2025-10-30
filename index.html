@@ -1,841 +1,4074 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complaint Management Dashboard - Crispy Chicken</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #818cf8;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1f2937;
-            --light-bg: #f9fafb;
-            --border-color: #e5e7eb;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--light-bg);
-            color: var(--dark-color);
-        }
-
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .dashboard-header {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card.rejected {
-            border-left-color: var(--danger-color);
-        }
-
-        .stat-card.accepted {
-            border-left-color: var(--success-color);
-        }
-
-        .stat-card.pending {
-            border-left-color: var(--warning-color);
-        }
-
-        .stat-card.total {
-            border-left-color: var(--primary-color);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .stat-icon.rejected {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-
-        .stat-icon.accepted {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .stat-icon.pending {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-        }
-
-        .stat-icon.total {
-            background-color: rgba(79, 70, 229, 0.1);
-            color: var(--primary-color);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        .stat-label {
-            color: #6b7280;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .filter-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .table-header {
-            background-color: #f9fafb;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-responsive {
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background-color: white;
-            z-index: 10;
-            border-bottom: 2px solid var(--border-color);
-            font-weight: 600;
-            color: var(--dark-color);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        .table tbody tr {
-            transition: background-color 0.2s;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f9fafb;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-rejected {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-
-        .status-accepted {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .status-pending {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-        }
-
-        .evidence-link {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .evidence-link:hover {
-            text-decoration: underline;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border: none;
-            background-color: #f3f4f6;
-            color: #6b7280;
-            transition: all 0.2s;
-        }
-
-        .btn-icon:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            background-color: #f9fafb;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .upload-area:hover {
-            border-color: var(--primary-color);
-            background-color: rgba(79, 70, 229, 0.05);
-        }
-
-        .upload-area.dragover {
-            border-color: var(--primary-color);
-            background-color: rgba(79, 70, 229, 0.1);
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box input {
-            padding-left: 2.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-
-        .pagination {
-            margin-top: 1rem;
-        }
-
-        .page-link {
-            border-radius: 8px;
-            margin: 0 0.25rem;
-            color: var(--dark-color);
-            border: 1px solid var(--border-color);
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .modal-content {
-            border-radius: 12px;
-            border: none;
-        }
-
-        .modal-header {
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: var(--dark-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-        }
-
-        .btn-outline-secondary {
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .stat-card {
-                margin-bottom: 1rem;
-            }
-            
-            .table-responsive {
-                max-height: 400px;
-            }
-        }
-    </style>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crispy Chicken Management Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { 
+      --primary: #d9534f; 
+      --secondary: #5cb85c; 
+      --warning: #f0ad4e; 
+      --info: #5bc0de; 
+      --light: #f4f4f9; 
+      --dark: #333; 
+      --white: #fff; 
+      --border: #ddd; 
+      --success-green: #28a745; 
+      --danger-red: #dc3545;
+      --card-bg: #ffffff;
+      --card-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --nav-bg: #2c3e50;
+      --nav-hover: #34495e;
+      --nav-active: #1a252f;
+      --overlay-bg: rgba(0,0,0,0.5);
+      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: 'Roboto', sans-serif; 
+      background-color: var(--light); 
+      color: var(--dark); 
+      margin: 0; 
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    .container { 
+      display: flex; 
+      height: 100vh; 
+    }
+    
+    /* Navigation Sidebar */
+    .nav-sidebar {
+      width: 220px;
+      background-color: var(--nav-bg);
+      color: var(--white);
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .nav-header {
+      text-align: center;
+      padding: 0 15px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .nav-header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 10px;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    
+    .nav-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .nav-item {
+      margin-bottom: 5px;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .nav-link:hover {
+      background-color: var(--nav-hover);
+      color: var(--white);
+    }
+    
+    .nav-link.active {
+      background-color: var(--nav-active);
+      color: var(--white);
+    }
+    
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background-color: var(--primary);
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: #f8f9fa;
+    }
+    
+    .content-header {
+      background-color: var(--white);
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .content-title {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .content-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+    
+    .btn-primary:hover {
+      background-color: #c9302c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-info {
+      background-color: var(--info);
+      color: var(--white);
+    }
+    
+    .btn-info:hover {
+      background-color: #31b0d5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-success {
+      background-color: var(--success-green);
+      color: var(--white);
+    }
+    
+    .btn-success:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .content-body {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Dashboard Section */
+    .dashboard-section {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .dashboard-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background-color: var(--primary);
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .dashboard-card .icon {
+      font-size: 2.5rem;
+      margin-right: 15px;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: rgba(0,0,0,0.05);
+    }
+    
+    .dashboard-card .content {
+      flex-grow: 1;
+    }
+    
+    .dashboard-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .dashboard-card .label {
+      font-size: 1rem;
+      color: #666;
+      margin: 0;
+    }
+    
+    .dashboard-card.branches .icon { color: var(--primary); }
+    .dashboard-card.drivers .icon { color: var(--info); }
+    .dashboard-card.managers .icon { color: var(--warning); }
+    .dashboard-card.agents .icon { color: var(--secondary); }
+    .dashboard-card.sales .icon { color: var(--success-green); }
+    
+    /* Data Sections */
+    .data-section {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .data-section.active {
+      display: flex;
+    }
+    
+    .section-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .search-box {
+      width: 300px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .search-box:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.1);
+    }
+    
+    .data-table-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .data-table th, .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .data-table th {
+      background-color: #f8f9fa;
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .data-table tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .status-active {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--success-green);
+    }
+    
+    .status-inactive {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: var(--danger-red);
+    }
+    
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--info);
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 0 3px;
+      padding: 5px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    
+    .action-btn:hover {
+      background-color: rgba(91, 192, 222, 0.1);
+      transform: scale(1.1);
+    }
+    
+    .action-btn.delete {
+      color: var(--danger-red);
+    }
+    
+    .action-btn.delete:hover {
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    /* Form Popup */
+    .form-popup { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: var(--overlay-bg); 
+      z-index: 1000; 
+      justify-content: center; 
+      align-items: center; 
+      animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .form-container { 
+      background: var(--white); 
+      padding: 30px; 
+      border-radius: 8px; 
+      width: 90%; 
+      max-width: 600px; 
+      max-height: 90vh; 
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: slideIn 0.3s;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .close-btn { 
+      color: var(--dark); 
+      float: right; 
+      font-size: 28px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: all 0.3s;
+      line-height: 1;
+    }
+    
+    .close-btn:hover { 
+      color: var(--primary); 
+      transform: rotate(90deg);
+    }
+    
+    .form-title {
+      margin-top: 0;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    form { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+      gap: 15px; 
+    }
+    
+    .form-group { 
+      display: flex; 
+      flex-direction: column; 
+    }
+    
+    .form-group.full-width { 
+      grid-column: 1 / -1; 
+    }
+    
+    label { 
+      margin-bottom: 5px; 
+      font-weight: 500; 
+      color: var(--dark);
+    }
+    
+    input, select, textarea { 
+      padding: 10px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: all 0.3s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.1);
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    
+    .btn-submit {
+      background-color: var(--secondary);
+      color: var(--white);
+    }
+    
+    .btn-submit:hover {
+      background-color: #4cae4c;
+    }
+    
+    .btn-delete {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+    
+    .btn-delete:hover {
+      background-color: #c9302c;
+    }
+    
+    /* Notification */
+    .notification { 
+      position: fixed; 
+      top: 20px; 
+      right: 20px; 
+      padding: 15px 20px; 
+      border-radius: 4px; 
+      color: var(--white); 
+      z-index: 1001; 
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: slideInRight 0.3s;
+      max-width: 300px;
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    
+    .success { 
+      background-color: var(--success-green); 
+    }
+    
+    .error { 
+      background-color: var(--danger-red); 
+    }
+    
+    .warning {
+      background-color: var(--warning);
+    }
+    
+    /* Map Styles */
+    .map-container {
+      height: 400px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    #map { 
+      height: 100%; 
+      width: 100%; 
+    }
+    
+    /* Chart Styles */
+    .chart-container {
+      height: 300px;
+      margin-bottom: 20px;
+      background: var(--white);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    /* Monthly Sales Table Styles */
+    .monthly-sales-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .monthly-sales-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .monthly-sales-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--gradient);
+    }
+    
+    .monthly-sales-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    
+    .monthly-sales-card .month {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--dark);
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+    
+    .monthly-sales-card .percentage {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 5px 0;
+    }
+    
+    .monthly-sales-card .delivery-count {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    .percentage-high {
+      color: var(--success-green);
+    }
+    
+    .percentage-medium {
+      color: var(--warning);
+    }
+    
+    .percentage-low {
+      color: var(--danger-red);
+    }
+    
+    /* Loading Spinner */
+    .loading-spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0,0,0,0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Excel Import Section */
+    .excel-import-container {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 20px;
+    }
+    
+    .import-area {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s;
+      background-color: #fafafa;
+    }
+    
+    .import-area.dragover {
+      border-color: var(--primary);
+      background-color: rgba(217, 83, 79, 0.05);
+    }
+    
+    .import-area i {
+      font-size: 3rem;
+      color: var(--info);
+      margin-bottom: 15px;
+    }
+    
+    .import-area p {
+      margin: 0 0 15px;
+      color: var(--dark);
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .import-btn {
+      background-color: var(--info);
+      color: var(--white);
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .import-btn:hover {
+      background-color: #31b0d5;
+      transform: translateY(-2px);
+    }
+    
+    .imported-files {
+      margin-top: 20px;
+    }
+    
+    .imported-file {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .imported-file:last-child {
+      border-bottom: none;
+    }
+    
+    .file-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .file-info i {
+      margin-right: 10px;
+      color: var(--info);
+    }
+    
+    .file-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* Sales Dashboard */
+    .sales-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .sales-chart-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .sales-chart-card h3 {
+      margin-top: 0;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .chart-canvas-container {
+      height: 250px;
+      position: relative;
+    }
+    
+    .payment-methods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .payment-method-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .payment-method-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    
+    .payment-method-card .icon {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: var(--info);
+    }
+    
+    .payment-method-card .amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .payment-method-card .percentage {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .pagination button {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .pagination button:hover {
+      background-color: var(--light);
+    }
+    
+    .pagination button.active {
+      background-color: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .pagination-info {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    /* Stats Overview */
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 5px 0;
+    }
+    
+    .stat-card .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .nav-toggle {
+        display: block;
+      }
+      
+      .nav-sidebar {
+        position: fixed;
+        top: 0;
+        left: -220px;
+        height: 100vh;
+        z-index: 100;
+        transition: left 0.3s ease;
+      }
+      
+      .nav-sidebar.active {
+        left: 0;
+      }
+      
+      .main-container {
+        margin-left: 0;
+      }
+      
+      .search-box {
+        width: 100%;
+      }
+      
+      .section-controls {
+        flex-direction: column;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .monthly-sales-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-container {
+        width: 95%;
+        padding: 20px;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+      
+      .sales-dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-overview {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-shield-check me-2"></i>
-                Complaint Management System
-            </a>
-            <div class="d-flex align-items-center text-white">
-                <i class="bi bi-bell me-3"></i>
-                <i class="bi bi-person-circle me-2"></i>
-                <span>Admin</span>
-            </div>
-        </div>
-    </nav>
 
-    <div class="container-fluid py-4">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="h3 mb-1">Complaint Dashboard</h1>
-                    <p class="text-muted mb-0">Track and manage customer complaints and responses</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted">Last updated: <span id="lastUpdate"></span></p>
-                </div>
-            </div>
-        </div>
+<div class="container">
+  <!-- Navigation Sidebar -->
+  <div class="nav-sidebar" id="nav-sidebar">
+    <div class="nav-header">
+      <h1><i class="fas fa-drumstick-bite"></i> Crispy Chicken</h1>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="#" class="nav-link active" data-section="dashboard" aria-current="page">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" data-section="branches">
+          <i class="fas fa-store"></i> Branches
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" data-section="drivers">
+          <i class="fas fa-motorcycle"></i> Drivers
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" data-section="managers">
+          <i class="fas fa-user-tie"></i> Managers
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" data-section="agents">
+          <i class="fas fa-user-secret"></i> Agents
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" data-section="sales">
+          <i class="fas fa-chart-line"></i> Sales
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" data-section="excel-sales">
+          <i class="fas fa-file-excel"></i> Excel Sales
+        </a>
+      </li>
+    </ul>
+  </div>
 
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-card rejected">
-                    <div class="d-flex align-items-center">
-                        <div class="stat-icon rejected">
-                            <i class="bi bi-x-circle"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="stat-value">1</div>
-                            <div class="stat-label">Rejected Complaints</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-card accepted">
-                    <div class="d-flex align-items-center">
-                        <div class="stat-icon accepted">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">Accepted Complaints</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-card pending">
-                    <div class="d-flex align-items-center">
-                        <div class="stat-icon pending">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="stat-value">41</div>
-                            <div class="stat-label">Pending Review</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-card total">
-                    <div class="d-flex align-items-center">
-                        <div class="stat-icon total">
-                            <i class="bi bi-cash-coin"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="stat-value">AED 588.29</div>
-                            <div class="stat-label">Total Refund Amount</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Main Content Area -->
+  <div class="main-container">
+    <!-- Dashboard Section -->
+    <div id="dashboard-section" class="data-section active">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-tachometer-alt"></i> Management Dashboard
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-info" onclick="exportAllData()" aria-label="Export all data">
+            <i class="fas fa-download"></i> Export All Data
+          </button>
         </div>
-
-        <!-- Filters -->
-        <div class="filter-card">
-            <h5 class="mb-3">Filter Complaints</h5>
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="outletFilter" class="form-label">Outlet</label>
-                    <select class="form-select" id="outletFilter">
-                        <option value="">All Outlets</option>
-                        <option value="Al Danah">Al Danah</option>
-                        <option value="Al Satwa">Al Satwa</option>
-                        <option value="Al Markaziyah">Al Markaziyah</option>
-                        <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
-                        <option value="Al Barsha 1">Al Barsha 1</option>
-                        <option value="Al Rawdah">Al Rawdah</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="reasonFilter" class="form-label">Reason</label>
-                    <select class="form-select" id="reasonFilter">
-                        <option value="">All Reasons</option>
-                        <option value="Wrong item sent">Wrong item sent</option>
-                        <option value="Missing or unavailable items (Main item)">Missing items (Main)</option>
-                        <option value="Spilled / damaged">Spilled / damaged</option>
-                        <option value="Food is undercooked">Food undercooked</option>
-                        <option value="Missing or unavailable items (Side item)">Missing items (Side)</option>
-                        <option value="Instructions not followed">Instructions not followed</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="responseFilter" class="form-label">Our Response</label>
-                    <select class="form-select" id="responseFilter">
-                        <option value="">All Responses</option>
-                        <option value="Rejected">Rejected</option>
-                        <option value="Accepted">Accepted</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="dateFilter" class="form-label">Date</label>
-                    <input type="date" class="form-control" id="dateFilter">
-                </div>
+      </div>
+      <div class="content-body">
+        <div class="dashboard-grid">
+          <div class="dashboard-card branches" onclick="switchSection('branches')" tabindex="0" role="button" aria-label="View branches">
+            <div class="icon"><i class="fas fa-store"></i></div>
+            <div class="content">
+              <p class="value" id="total-branches">8</p>
+              <p class="label">Total Branches</p>
             </div>
+          </div>
+          
+          <div class="dashboard-card drivers" onclick="switchSection('drivers')" tabindex="0" role="button" aria-label="View drivers">
+            <div class="icon"><i class="fas fa-motorcycle"></i></div>
+            <div class="content">
+              <p class="value" id="total-drivers">25</p>
+              <p class="label">Total Drivers</p>
+            </div>
+          </div>
+          
+          <div class="dashboard-card managers" onclick="switchSection('managers')" tabindex="0" role="button" aria-label="View managers">
+            <div class="icon"><i class="fas fa-user-tie"></i></div>
+            <div class="content">
+              <p class="value" id="total-managers">8</p>
+              <p class="label">Total Managers</p>
+            </div>
+          </div>
+          
+          <div class="dashboard-card agents" onclick="switchSection('agents')" tabindex="0" role="button" aria-label="View agents">
+            <div class="icon"><i class="fas fa-user-secret"></i></div>
+            <div class="content">
+              <p class="value" id="total-agents">12</p>
+              <p class="label">Total Agents</p>
+            </div>
+          </div>
+          
+          <div class="dashboard-card sales" onclick="switchSection('sales')" tabindex="0" role="button" aria-label="View sales">
+            <div class="icon"><i class="fas fa-chart-line"></i></div>
+            <div class="content">
+              <p class="value" id="total-sales">AED 125,430</p>
+              <p class="label">Total Sales</p>
+            </div>
+          </div>
         </div>
-
-        <!-- Upload Evidence -->
-        <div class="filter-card">
-            <h5 class="mb-3">Upload Evidence</h5>
-            <div class="upload-area" id="uploadArea">
-                <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
-                <p class="mt-2 mb-1">Drag & drop images or videos here</p>
-                <p class="text-muted small mb-0">or <span class="text-primary">click to browse</span></p>
-                <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display: none;">
-            </div>
+        
+        <div class="stats-overview">
+          <div class="stat-card">
+            <div class="stat-label">Active Branches</div>
+            <div class="stat-value" id="active-branches">7</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-label">Total Bikes</div>
+            <div class="stat-value" id="total-bikes">18</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-label">Total Staff</div>
+            <div class="stat-value" id="total-staff">53</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-label">Avg. Rating</div>
+            <div class="stat-value" id="avg-rating">4.1</div>
+          </div>
         </div>
-
-        <!-- Complaints Table -->
-        <div class="table-container">
-            <div class="table-header">
-                <div class="d-flex align-items-center">
-                    <h5 class="mb-0 me-3">Complaints List</h5>
-                    <span class="badge bg-secondary">42 records</span>
-                </div>
-                <div class="d-flex align-items-center">
-                    <div class="search-box me-3">
-                        <i class="bi bi-search"></i>
-                        <input type="text" class="form-control" placeholder="Search complaints..." id="searchInput">
-                    </div>
-                    <button class="btn btn-outline-secondary btn-sm me-2">
-                        <i class="bi bi-download me-1"></i> Export Excel
-                    </button>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addResponseModal">
-                        <i class="bi bi-plus-circle me-1"></i> Add Response
-                    </button>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover mb-0" id="complaintsTable">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Outlet</th>
-                            <th>Date & Time</th>
-                            <th>Reason</th>
-                            <th>Refund Amount</th>
-                            <th>Status</th>
-                            <th>Our Response</th>
-                            <th>Evidence</th>
-                            <th>Careem Decision</th>
-                            <th>Notes</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>#127640145</strong></td>
-                            <td>Crispy Chicken - Al Danah</td>
-                            <td>31 Aug 2025, 07:28 PM</td>
-                            <td>Wrong item sent</td>
-                            <td><span class="text-danger">- AED 20.00</span></td>
-                            <td><span class="status-badge status-rejected">Rejected</span></td>
-                            <td>Order was correctly prepared</td>
-                            <td><a href="#" class="evidence-link"><i class="bi bi-camera-video"></i> Video</a></td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>Customer claimed wrong meal, video evidence proves otherwise</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-icon" title="View Details" data-bs-toggle="modal" data-bs-target="#viewModal">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn-icon" title="Edit Response" data-bs-toggle="modal" data-bs-target="#editModal">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>#127636151</strong></td>
-                            <td>Crispy Chicken - Al Danah</td>
-                            <td>31 Aug 2025, 07:59 PM</td>
-                            <td>Missing items (Main)</td>
-                            <td><span class="text-danger">- AED 20.00</span></td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>-</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-icon" title="View Details">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn-icon" title="Edit Response">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>#127642626</strong></td>
-                            <td>Crispy Chicken - Mohammed Bin Zayed City</td>
-                            <td>31 Aug 2025, 07:40 PM</td>
-                            <td>Missing items (Main)</td>
-                            <td><span class="text-danger">- AED 19.47</span></td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>-</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-icon" title="View Details">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn-icon" title="Edit Response">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- More rows would be added here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="p-3">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+        
+        <div class="chart-container">
+          <canvas id="sales-chart"></canvas>
         </div>
+        
+        <div class="map-container">
+          <div id="map"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- View Modal -->
-    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewModalLabel">Complaint Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Order ID:</strong> #127640145</p>
-                            <p><strong>Outlet:</strong> Crispy Chicken - Al Danah</p>
-                            <p><strong>Date & Time:</strong> 31 Aug 2025, 07:28 PM</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Reason:</strong> Wrong item sent</p>
-                            <p><strong>Refund Amount:</strong> <span class="text-danger">- AED 20.00</span></p>
-                            <p><strong>Status:</strong> <span class="status-badge status-rejected">Rejected</span></p>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <p><strong>Customer Claim:</strong> Wrong item sent (Daily Offer Spicy Meal)</p>
-                        <p><strong>Our Response:</strong> The order was correctly prepared as per the customer's selection (Daily Offer Spicy Meal – Spicy) and fully handed over to the Careem driver. The claim of receiving "original instead of spicy" and "only wings, no chicken breast" is incorrect and not valid.</p>
-                    </div>
-                    <div class="mb-3">
-                        <p><strong>Evidence:</strong></p>
-                        <div class="d-flex gap-2">
-                            <div class="border rounded p-2 text-center" style="width: 100px;">
-                                <i class="bi bi-camera-video fs-1 text-primary"></i>
-                                <p class="small mb-0">Video Proof</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <p><strong>Notes:</strong> Video evidence confirms that the complete Spicy Meal was packed with the correct items.</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
+    <!-- Excel Sales Section -->
+    <div id="excel-sales-section" class="data-section">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-file-excel"></i> Excel Sales Dashboard
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-success" onclick="downloadTemplate()" aria-label="Download template">
+            <i class="fas fa-download"></i> Download Template
+          </button>
+          <button class="btn btn-info" onclick="exportExcelData()" aria-label="Export data">
+            <i class="fas fa-download"></i> Export Data
+          </button>
         </div>
+      </div>
+      <div class="content-body">
+        <div class="excel-import-container">
+          <h3>Import Excel Sales Data</h3>
+          <div class="import-area" id="import-area" tabindex="0" role="button" aria-label="Import area for Excel files">
+            <i class="fas fa-file-excel"></i>
+            <p>Drag and drop your Excel file here or click to browse</p>
+            <input type="file" id="excel-file-input" class="file-input" accept=".xlsx, .xls" aria-label="Excel file input">
+            <button class="import-btn" onclick="document.getElementById('excel-file-input').click()">Browse Files</button>
+          </div>
+          <div class="imported-files" id="imported-files">
+            <!-- Imported files will be listed here -->
+          </div>
+        </div>
+        
+        <div class="loading-spinner" id="excel-loading" aria-label="Loading"></div>
+        
+        <div class="sales-dashboard" id="sales-dashboard">
+          <!-- Sales dashboard will be rendered here -->
+        </div>
+        
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Branch</th>
+                <th>Receipts (AED)</th>
+                <th>% of Total</th>
+                <th>Cash (AED)</th>
+                <th>Card Payments (AED)</th>
+                <th>Online Payments (AED)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="excel-sales-table-body">
+              <!-- Excel sales data will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Response</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="responseStatus" class="form-label">Response Status</label>
-                            <select class="form-select" id="responseStatus">
-                                <option value="Rejected" selected>Rejected</option>
-                                <option value="Accepted">Accepted</option>
-                                <option value="Pending">Pending</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="responseText" class="form-label">Our Response</label>
-                            <textarea class="form-control" id="responseText" rows="4">The order was correctly prepared as per the customer's selection (Daily Offer Spicy Meal – Spicy) and fully handed over to the Careem driver. The claim of receiving "original instead of spicy" and "only wings, no chicken breast" is incorrect and not valid.</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="evidenceLink" class="form-label">Evidence Link</label>
-                            <input type="text" class="form-control" id="evidenceLink" value="https://example.com/video-proof">
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" rows="3">Video evidence confirms that the complete Spicy Meal was packed with the correct items.</textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Save Changes</button>
-                </div>
-            </div>
+    <!-- Branches Section -->
+    <div id="branches-section" class="data-section">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-store"></i> Branch Management
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-primary" onclick="openBranchForm()" aria-label="Add new branch">
+            <i class="fas fa-plus"></i> Add Branch
+          </button>
+          <button class="btn btn-info" onclick="exportData('branches')" aria-label="Export branches data">
+            <i class="fas fa-download"></i> Export
+          </button>
         </div>
+      </div>
+      <div class="content-body">
+        <div class="section-controls">
+          <input type="text" class="search-box" id="branch-search" placeholder="Search branches..." aria-label="Search branches">
+          <select id="branch-city-filter" class="search-box" style="width: 200px;" aria-label="Filter by city">
+            <option value="">All Cities</option>
+            <option value="Abu Dhabi">Abu Dhabi</option>
+            <option value="Dubai">Dubai</option>
+          </select>
+        </div>
+        <div class="loading-spinner" id="branches-loading" aria-label="Loading branches"></div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Branch Name</th>
+                <th>City</th>
+                <th>Area</th>
+                <th>Manager</th>
+                <th>Delivery Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="branch-table-body">
+              <!-- Branch data will be inserted here -->
+            </tbody>
+          </table>
+          <div class="pagination" id="branch-pagination"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Add Response Modal -->
-    <div class="modal fade" id="addResponseModal" tabindex="-1" aria-labelledby="addResponseModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addResponseModalLabel">Add New Response</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="orderSelect" class="form-label">Select Order</label>
-                            <select class="form-select" id="orderSelect">
-                                <option value="">-- Select Order --</option>
-                                <option value="127636151">#127636151 - Al Danah</option>
-                                <option value="127642626">#127642626 - Mohammed Bin Zayed City</option>
-                                <option value="127644796">#127644796 - Al Danah</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newResponseStatus" class="form-label">Response Status</label>
-                            <select class="form-select" id="newResponseStatus">
-                                <option value="Rejected">Rejected</option>
-                                <option value="Accepted">Accepted</option>
-                                <option value="Pending" selected>Pending</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newResponseText" class="form-label">Our Response</label>
-                            <textarea class="form-control" id="newResponseText" rows="4" placeholder="Enter your response here..."></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newEvidenceLink" class="form-label">Evidence Link</label>
-                            <input type="text" class="form-control" id="newEvidenceLink" placeholder="https://example.com/evidence">
-                        </div>
-                        <div class="mb-3">
-                            <label for="newNotes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="newNotes" rows="3" placeholder="Additional notes..."></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Add Response</button>
-                </div>
-            </div>
+    <!-- Drivers Section -->
+    <div id="drivers-section" class="data-section">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-motorcycle"></i> Driver Management
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-primary" onclick="openDriverForm()" aria-label="Add new driver">
+            <i class="fas fa-plus"></i> Add Driver
+          </button>
+          <button class="btn btn-info" onclick="exportData('drivers')" aria-label="Export drivers data">
+            <i class="fas fa-download"></i> Export
+          </button>
         </div>
+      </div>
+      <div class="content-body">
+        <div class="section-controls">
+          <input type="text" class="search-box" id="driver-search" placeholder="Search drivers..." aria-label="Search drivers">
+          <select id="driver-branch-filter" class="search-box" style="width: 200px;" aria-label="Filter by branch">
+            <option value="">All Branches</option>
+          </select>
+        </div>
+        <div class="loading-spinner" id="drivers-loading" aria-label="Loading drivers"></div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Branch</th>
+                <th>License</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="driver-table-body">
+              <!-- Driver data will be inserted here -->
+            </tbody>
+          </table>
+          <div class="pagination" id="driver-pagination"></div>
+        </div>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Update current date/time
-        document.getElementById('lastUpdate').textContent = new Date().toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    <!-- Managers Section -->
+    <div id="managers-section" class="data-section">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-user-tie"></i> Manager Management
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-primary" onclick="openManagerForm()" aria-label="Add new manager">
+            <i class="fas fa-plus"></i> Add Manager
+          </button>
+          <button class="btn btn-info" onclick="exportData('managers')" aria-label="Export managers data">
+            <i class="fas fa-download"></i> Export
+          </button>
+        </div>
+      </div>
+      <div class="content-body">
+        <div class="section-controls">
+          <input type="text" class="search-box" id="manager-search" placeholder="Search managers..." aria-label="Search managers">
+          <select id="manager-branch-filter" class="search-box" style="width: 200px;" aria-label="Filter by branch">
+            <option value="">All Branches</option>
+          </select>
+        </div>
+        <div class="loading-spinner" id="managers-loading" aria-label="Loading managers"></div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Branch</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="manager-table-body">
+              <!-- Manager data will be inserted here -->
+            </tbody>
+          </table>
+          <div class="pagination" id="manager-pagination"></div>
+        </div>
+      </div>
+    </div>
 
-        // File upload functionality
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
+    <!-- Agents Section -->
+    <div id="agents-section" class="data-section">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-user-secret"></i> Agent Management
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-primary" onclick="openAgentForm()" aria-label="Add new agent">
+            <i class="fas fa-plus"></i> Add Agent
+          </button>
+          <button class="btn btn-info" onclick="exportData('agents')" aria-label="Export agents data">
+            <i class="fas fa-download"></i> Export
+          </button>
+        </div>
+      </div>
+      <div class="content-body">
+        <div class="section-controls">
+          <input type="text" class="search-box" id="agent-search" placeholder="Search agents..." aria-label="Search agents">
+          <select id="agent-status-filter" class="search-box" style="width: 200px;" aria-label="Filter by status">
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="loading-spinner" id="agents-loading" aria-label="Loading agents"></div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Area</th>
+                <th>Commission</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="agent-table-body">
+              <!-- Agent data will be inserted here -->
+            </tbody>
+          </table>
+          <div class="pagination" id="agent-pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales Section -->
+    <div id="sales-section" class="data-section">
+      <div class="content-header">
+        <h2 class="content-title">
+          <i class="fas fa-chart-line"></i> Sales Management
+        </h2>
+        <div class="content-actions">
+          <button class="btn btn-primary" onclick="openMonthlySalesForm()" aria-label="Add monthly sales">
+            <i class="fas fa-plus"></i> Add Monthly Sales
+          </button>
+          <button class="btn btn-info" onclick="exportData('monthly-sales')" aria-label="Export sales data">
+            <i class="fas fa-download"></i> Export
+          </button>
+        </div>
+      </div>
+      <div class="content-body">
+        <div class="section-controls">
+          <input type="text" class="search-box" id="monthly-sales-search" placeholder="Search monthly sales..." aria-label="Search monthly sales">
+          <select id="year-filter" class="search-box" style="width: 200px;" aria-label="Filter by year">
+            <option value="">All Years</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
         
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
+        <!-- Monthly Sales Summary Cards -->
+        <div class="monthly-sales-grid" id="monthly-sales-summary">
+          <!-- Monthly sales summary cards will be inserted here -->
+        </div>
         
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFiles(e.dataTransfer.files);
-            }
-        });
-        
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length) {
-                handleFiles(fileInput.files);
-            }
-        });
-        
-        function handleFiles(files) {
-            console.log('Files uploaded:', files);
-            alert(`${files.length} file(s) uploaded successfully!`);
+        <div class="loading-spinner" id="sales-loading" aria-label="Loading sales"></div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Branch</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Delivery Count</th>
+                <th>Percentage</th>
+                <th>Sales Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="monthly-sales-table-body">
+              <!-- Monthly sales data will be inserted here -->
+            </tbody>
+          </table>
+          <div class="pagination" id="sales-pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Branch Form Popup -->
+<div id="branch-form-popup" class="form-popup" role="dialog" aria-labelledby="branch-form-title" aria-modal="true">
+  <div class="form-container">
+    <span class="close-btn" onclick="closeForm('branch-form-popup')" aria-label="Close form">&times;</span>
+    <h2 class="form-title" id="branch-form-title">
+      <i class="fas fa-store"></i> Add New Branch
+    </h2>
+    <form id="branch-form" novalidate>
+      <input type="hidden" id="branch-edit-id">
+      <div class="form-group"><label for="branch-name">Branch Name *</label><input type="text" id="branch-name" required aria-required="true"></div>
+      <div class="form-group"><label for="branch-city">City *</label><input type="text" id="branch-city" required aria-required="true"></div>
+      <div class="form-group"><label for="branch-direction">Coordinates (lat, lng)</label><input type="text" id="branch-direction" placeholder="24.4958, 54.3715" aria-label="Branch coordinates"></div>
+      <div class="form-group"><label for="branch-area">Area</label><input type="text" id="branch-area"></div>
+      <div class="form-group"><label for="branch-landline">Landline</label><input type="text" id="branch-landline"></div>
+      <div class="form-group"><label for="branch-google-site">Google Site</label><input type="url" id="branch-google-site"></div>
+      <div class="form-group"><label for="branch-rate">Rate</label><input type="number" id="branch-rate" step="0.1" min="0" max="5"></div>
+      <div class="form-group"><label for="branch-manager">Manager</label><select id="branch-manager"></select></div>
+      <div class="form-group"><label for="branch-email">Email</label><input type="email" id="branch-email"></div>
+      <div class="form-group"><label for="branch-delivery-status">Delivery Status</label><select id="branch-delivery-status"><option>Yes</option><option>No</option><option>N/A</option></select></div>
+      <div class="form-group"><label for="branch-link-online">Online Link</label><input type="url" id="branch-link-online"></div>
+      <div class="form-group"><label for="branch-num-bikes">Number Bikes</label><input type="number" id="branch-num-bikes" min="0"></div>
+      <div class="form-group"><label for="branch-num-drivers">Number Drivers</label><input type="number" id="branch-num-drivers" min="0"></div>
+      
+      <!-- Device Fields -->
+      <div class="form-group"><label for="branch-talabat-device">Talabat Device</label><select id="branch-talabat-device"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="form-group"><label for="branch-noon-device">Noon Device</label><select id="branch-noon-device"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="form-group"><label for="branch-careem-device">Careem Device</label><select id="branch-careem-device"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="form-group"><label for="branch-deliveroo-device">Deliveroo Device</label><select id="branch-deliveroo-device"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="form-group"><label for="branch-smile-device">Smile Device</label><select id="branch-smile-device"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="form-group"><label for="branch-talabana-device">Talabana Device</label><select id="branch-talabana-device"><option value="1">Yes</option><option value="0">No</option></select></div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" id="branch-submit-btn">Save Branch</button>
+        <button type="button" class="btn btn-delete" id="branch-delete-btn" style="display:none;">Delete Branch</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Driver Form Popup -->
+<div id="driver-form-popup" class="form-popup" role="dialog" aria-labelledby="driver-form-title" aria-modal="true">
+  <div class="form-container">
+    <span class="close-btn" onclick="closeForm('driver-form-popup')" aria-label="Close form">&times;</span>
+    <h2 class="form-title" id="driver-form-title">
+      <i class="fas fa-motorcycle"></i> Add New Driver
+    </h2>
+    <form id="driver-form" novalidate>
+      <input type="hidden" id="driver-edit-id">
+      <div class="form-group"><label for="driver-name">Name *</label><input type="text" id="driver-name" required aria-required="true"></div>
+      <div class="form-group"><label for="driver-phone">Phone *</label><input type="text" id="driver-phone" required aria-required="true"></div>
+      <div class="form-group"><label for="driver-email">Email</label><input type="email" id="driver-email"></div>
+      <div class="form-group"><label for="driver-branch">Branch</label><select id="driver-branch"></select></div>
+      <div class="form-group"><label for="driver-license">License Number</label><input type="text" id="driver-license"></div>
+      <div class="form-group"><label for="driver-license-expiry">License Expiry</label><input type="date" id="driver-license-expiry"></div>
+      <div class="form-group"><label for="driver-join-date">Join Date</label><input type="date" id="driver-join-date"></div>
+      <div class="form-group"><label for="driver-salary">Salary</label><input type="number" id="driver-salary" min="0"></div>
+      <div class="form-group"><label for="driver-status">Status</label><select id="driver-status"><option>Active</option><option>Inactive</option><option>On Leave</option></select></div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" id="driver-submit-btn">Save Driver</button>
+        <button type="button" class="btn btn-delete" id="driver-delete-btn" style="display:none;">Delete Driver</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Manager Form Popup -->
+<div id="manager-form-popup" class="form-popup" role="dialog" aria-labelledby="manager-form-title" aria-modal="true">
+  <div class="form-container">
+    <span class="close-btn" onclick="closeForm('manager-form-popup')" aria-label="Close form">&times;</span>
+    <h2 class="form-title" id="manager-form-title">
+      <i class="fas fa-user-tie"></i> Add New Manager
+    </h2>
+    <form id="manager-form" novalidate>
+      <input type="hidden" id="manager-edit-id">
+      <div class="form-group"><label for="manager-name">Name *</label><input type="text" id="manager-name" required aria-required="true"></div>
+      <div class="form-group"><label for="manager-phone">Phone *</label><input type="text" id="manager-phone" required aria-required="true"></div>
+      <div class="form-group"><label for="manager-email">Email</label><input type="email" id="manager-email"></div>
+      <div class="form-group"><label for="manager-branch">Branch</label><select id="manager-branch"></select></div>
+      <div class="form-group"><label for="manager-join-date">Join Date</label><input type="date" id="manager-join-date"></div>
+      <div class="form-group"><label for="manager-salary">Salary</label><input type="number" id="manager-salary" min="0"></div>
+      <div class="form-group"><label for="manager-status">Status</label><select id="manager-status"><option>Active</option><option>Inactive</option><option>On Leave</option></select></div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" id="manager-submit-btn">Save Manager</button>
+        <button type="button" class="btn btn-delete" id="manager-delete-btn" style="display:none;">Delete Manager</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Agent Form Popup -->
+<div id="agent-form-popup" class="form-popup" role="dialog" aria-labelledby="agent-form-title" aria-modal="true">
+  <div class="form-container">
+    <span class="close-btn" onclick="closeForm('agent-form-popup')" aria-label="Close form">&times;</span>
+    <h2 class="form-title" id="agent-form-title">
+      <i class="fas fa-user-secret"></i> Add New Agent
+    </h2>
+    <form id="agent-form" novalidate>
+      <input type="hidden" id="agent-edit-id">
+      <div class="form-group"><label for="agent-name">Name *</label><input type="text" id="agent-name" required aria-required="true"></div>
+      <div class="form-group"><label for="agent-phone">Phone *</label><input type="text" id="agent-phone" required aria-required="true"></div>
+      <div class="form-group"><label for="agent-email">Email</label><input type="email" id="agent-email"></div>
+      <div class="form-group"><label for="agent-area">Area</label><input type="text" id="agent-area"></div>
+      <div class="form-group"><label for="agent-commission">Commission (%)</label><input type="number" id="agent-commission" min="0" max="100" step="0.1"></div>
+      <div class="form-group"><label for="agent-join-date">Join Date</label><input type="date" id="agent-join-date"></div>
+      <div class="form-group"><label for="agent-status">Status</label><select id="agent-status"><option>Active</option><option>Inactive</option></select></div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" id="agent-submit-btn">Save Agent</button>
+        <button type="button" class="btn btn-delete" id="agent-delete-btn" style="display:none;">Delete Agent</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Monthly Sales Form Popup -->
+<div id="monthly-sales-form-popup" class="form-popup" role="dialog" aria-labelledby="monthly-sales-form-title" aria-modal="true">
+  <div class="form-container">
+    <span class="close-btn" onclick="closeForm('monthly-sales-form-popup')" aria-label="Close form">&times;</span>
+    <h2 class="form-title" id="monthly-sales-form-title">
+      <i class="fas fa-chart-line"></i> Add Monthly Sales
+    </h2>
+    <form id="monthly-sales-form" novalidate>
+      <input type="hidden" id="monthly-sales-edit-id">
+      <div class="form-group"><label for="monthly-sales-branch">Branch *</label><select id="monthly-sales-branch" required aria-required="true"></select></div>
+      <div class="form-group"><label for="monthly-sales-year">Year *</label><select id="monthly-sales-year" required aria-required="true"></select></div>
+      <div class="form-group"><label for="monthly-sales-month">Month *</label><select id="monthly-sales-month" required aria-required="true"></select></div>
+      <div class="form-group"><label for="monthly-sales-delivery-count">Delivery Count *</label><input type="number" id="monthly-sales-delivery-count" min="0" required aria-required="true"></div>
+      <div class="form-group"><label for="monthly-sales-percentage">Percentage (%) *</label><input type="number" id="monthly-sales-percentage" min="0" max="100" step="0.1" required aria-required="true"></div>
+      <div class="form-group"><label for="monthly-sales-amount">Sales Amount (AED) *</label><input type="number" id="monthly-sales-amount" min="0" step="0.01" required aria-required="true"></div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" id="monthly-sales-submit-btn">Save Monthly Sales</button>
+        <button type="button" class="btn btn-delete" id="monthly-sales-delete-btn" style="display:none;">Delete Monthly Sales</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="notification" class="notification" role="alert" aria-live="polite"></div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  // --- GLOBAL STATE ---
+  const app = {
+    map: null,
+    branchMarkers: [],
+    activeSection: 'dashboard',
+    salesChart: null,
+    excelSalesData: [],
+    excelCharts: {},
+    pagination: {
+      branches: { currentPage: 1, itemsPerPage: 10 },
+      drivers: { currentPage: 1, itemsPerPage: 10 },
+      managers: { currentPage: 1, itemsPerPage: 10 },
+      agents: { currentPage: 1, itemsPerPage: 10 },
+      sales: { currentPage: 1, itemsPerPage: 15 }
+    },
+    searchTimeout: null,
+    filters: {
+      branches: { city: '' },
+      drivers: { branch: '' },
+      managers: { branch: '' },
+      agents: { status: '' },
+      sales: { year: '' }
+    }
+  };
+  
+  // Sample data
+  const sampleData = {
+    branches: [
+      {
+        ID: 1,
+        'Branch Name': 'Crispy Chicken-Hamdan St',
+        City: 'Abu Dhabi',
+        direction: '24.4958298421285, 54.37155779999593',
+        AREA: 'Hamdan Opposite Sun and San Sports',
+        'Land line': '(02) 641 1194',
+        'Google site': 'https://g.co/kgs/TrxJBJV',
+        RATE: '4',
+        'Manger name': 'Mr. Mahmoud',
+        'Number manager': '971 55 688 6650',
+        'Email address': 'crispychickenhamdan@gmail.com',
+        'Delivery status': 'Yes',
+        'Link online': 'http://almarkaziya.crispychicken-uae.com/#_branch94929',
+        'Number bikes': '7',
+        'Number driver': '7',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careen device': '1',
+        'Deliveroo device': '1',
+        'Smile device': '1',
+        'Talabana device': '1'
+      },
+      {
+        ID: 2,
+        'Branch Name': 'Crispy chicken Shabiya 11',
+        City: 'Abu Dhabi',
+        direction: '24.328366371847554, 54.535004577124376',
+        AREA: 'Mohamed Bin Zayed City - ME-11',
+        'Land line': '(02) 554 9889',
+        'Google site': 'https://g.co/kgs/QQh8CXL',
+        RATE: '3.7',
+        'Manger name': 'Mr. Zakaria',
+        'Number manager': '971 56 269 0688',
+        'Email address': 'shabiha@crispychicken.rest',
+        'Delivery status': 'Yes',
+        'Link online': 'http://crispychicken-uae.com/#_branch94472',
+        'Number bikes': '',
+        'Number driver': '4',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careen device': '1',
+        'Deliveroo device': '1',
+        'Smile device': '1',
+        'Talabana device': '1'
+      },
+      {
+        ID: 3,
+        'Branch Name': 'Crispy chicken khaldia',
+        City: 'Abu Dhabi',
+        direction: '24.47955696172264, 54.353930808868604',
+        AREA: 'Khalidiya Tower - Al Khalidiya Street - opp. Grand Store',
+        'Land line': '(02) 546 0900',
+        'Google site': 'https://g.co/kgs/Du9UqrY',
+        RATE: '3.9',
+        'Manger name': 'Mr. Adel',
+        'Number manager': '971 56 949 4764',
+        'Email address': 'crispychicken.khalidia@gmail.com',
+        'Delivery status': 'Yes',
+        'Link online': 'http://alkhalidiyah.crispychicken-uae.com/#_branch94938',
+        'Number bikes': '',
+        'Number driver': '4',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careen device': '1',
+        'Deliveroo device': '1',
+        'Smile device': '1',
+        'Talabana device': '1'
+      },
+      {
+        ID: 4,
+        'Branch Name': 'Crispy chicken Elactra',
+        City: 'Abu Dhabi',
+        direction: '',
+        AREA: 'Electra street opp LLH hospital',
+        'Land line': '(02)8826902',
+        'Google site': '',
+        RATE: '',
+        'Manger name': 'Mr. RJ',
+        'Number manager': '971 56 386 6859',
+        'Email address': 'electra@crispychicken.rest',
+        'Delivery status': 'N/A',
+        'Link online': 'N/A',
+        'Number bikes': '0',
+        'Number driver': '0',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careen device': '1',
+        'Deliveroo device': '',
+        'Smile device': '1',
+        'Talabana device': ''
+      },
+      {
+        ID: 5,
+        'Branch Name': 'Crispy chicken Muroor',
+        City: 'Abu Dhabi',
+        direction: '24.434503442604896, 54.43866580679551',
+        AREA: '31 Muroor Rd - Al Sa\'adah - Zone 1',
+        'Land line': '(02) 563 3359',
+        'Google site': 'https://g.co/kgs/qS1e4Bi',
+        RATE: '4',
+        'Manger name': 'Mr. Tariq',
+        'Number manager': '971 50 541 4641',
+        'Email address': 'MOUROOR@CRISPYCHICKEN.REST',
+        'Delivery status': 'Yes',
+        'Link online': 'http://almuroorroad.crispychicken-uae.com/#_branch102831',
+        'Number bikes': '',
+        'Number driver': '3',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careen device': '1',
+        'Deliveroo device': '1',
+        'Smile device': '1',
+        'Talabana device': '1'
+      },
+      {
+        ID: 6,
+        'Branch Name': 'Crispy chicken Al Barsha',
+        City: 'Dubai',
+        direction: '25.11589564435004, 55.20455565397946',
+        AREA: 'Al Barsha 1',
+        'Land line': '(04) 835 8195',
+        'Google site': 'https://g.co/kgs/6xh7DNw',
+        RATE: '4.4',
+        'Manger name': 'Mr. Mahmed',
+        'Number manager': '971569659524',
+        'Email address': 'barsha@crispychicken.rest',
+        'Delivery status': 'Yes',
+        'Link online': 'http://albarsha.crispychicken-uae.com/#_branch124062',
+        'Number bikes': '',
+        'Number driver': '4',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careen device': '1',
+        'Deliveroo device': '1',
+        'Smile device': '1',
+        'Talabana device': '1'
+      },
+      {
+        ID: 7,
+        'Branch Name': 'Crispy chicken Al Satwa',
+        City: 'Dubai',
+        direction: '25.232522002773372, 55.2694237276173',
+        AREA: 'Satwa street Dubai',
+        'Land line': '(04)3265878',
+        'Google site': 'https://maps.app.goo.gl/XnyngSy4wgtSLRfc8',
+        RATE: '4.5',
+        'Manger name': 'Mr. Musab',
+        'Number manager': '971 56 797 0685',
+        'Email address': 'satwa@crispychicken.rest',
+        'Delivery status': 'Yes',
+        'Link online': 'http://satwa.crispychicken-uae.com/#_branch173500',
+        'Number bikes': '',
+        'Number driver': '3',
+        'Talabat device': '1',
+        'Noon device': '1',
+        'Careem device': '1',
+        'Deliveroo device': '1',
+        'Smile device': '1',
+        'Talabana device': '1'
+      },
+      {
+        ID: 8,
+        'Branch Name': 'Crispy chicken Al Regga',
+        City: 'Dubai',
+        direction: 'new brunch',
+        AREA: 'AReega area',
+        'Land line': '',
+        'Google site': 'https://maps.app.goo.gl/rfpWM5nrFTkxZMiX6?g_st=iw',
+        RATE: '5',
+        'Manger name': 'Mr. Zaid',
+        'Number manager': '971 56 740 5572',
+        'Email address': '',
+        'Delivery status': 'Yes',
+        'Link online': '',
+        'Number bikes': '',
+        'Number driver': '',
+        'Talabat device': '',
+        'Noon device': '',
+        'Careen device': '',
+        'Deliveroo device': '',
+        'Smile device': '',
+        'Talabana device': ''
+      }
+    ],
+    drivers: [
+      { ID: 1, Name: 'Ahmed Hassan', Phone: '971 50 123 4567', Email: 'ahmed@example.com', Branch: 'Crispy Chicken-Hamdan St', License: 'DXB-123456', LicenseExpiry: '2025-12-31', JoinDate: '2022-01-15', Salary: 3500, Status: 'Active' },
+      { ID: 2, Name: 'Mohammed Ali', Phone: '971 55 234 5678', Email: 'mohammed@example.com', Branch: 'Crispy chicken Shabiya 11', License: 'DXB-234567', LicenseExpiry: '2024-10-15', JoinDate: '2021-05-20', Salary: 3200, Status: 'Active' },
+      { ID: 3, Name: 'Saeed Ahmed', Phone: '971 56 345 6789', Email: 'saeed@example.com', Branch: 'Crispy chicken khaldia', License: 'DXB-345678', LicenseExpiry: '2025-03-20', JoinDate: '2022-03-10', Salary: 3400, Status: 'Active' },
+      { ID: 4, Name: 'Omar Ibrahim', Phone: '971 54 456 7890', Email: 'omar@example.com', Branch: 'Crispy chicken Elactra', License: 'DXB-456789', LicenseExpiry: '2024-08-30', JoinDate: '2021-11-05', Salary: 3000, Status: 'Inactive' },
+      { ID: 5, Name: 'Yusuf Khalid', Phone: '971 52 567 8901', Email: 'yusuf@example.com', Branch: 'Crispy chicken Muroor', License: 'DXB-567890', LicenseExpiry: '2025-06-15', JoinDate: '2022-02-28', Salary: 3300, Status: 'Active' },
+      { ID: 6, Name: 'Abdullah Rahman', Phone: '971 55 678 9012', Email: 'abdullah@example.com', Branch: 'Crispy chicken Al Barsha', License: 'DXB-678901', LicenseExpiry: '2025-01-10', JoinDate: '2021-09-12', Salary: 3600, Status: 'Active' },
+      { ID: 7, Name: 'Ibrahim Hassan', Phone: '971 56 789 0123', Email: 'ibrahim@example.com', Branch: 'Crispy chicken Al Satwa', License: 'DXB-789012', LicenseExpiry: '2024-11-25', JoinDate: '2022-04-18', Salary: 3500, Status: 'Active' },
+      { ID: 8, Name: 'Khalid Ahmed', Phone: '971 50 890 1234', Email: 'khalid@example.com', Branch: 'Crispy chicken Al Regga', License: 'DXB-890123', LicenseExpiry: '2025-05-05', JoinDate: '2022-06-01', Salary: 3400, Status: 'On Leave' }
+    ],
+    managers: [
+      { ID: 1, Name: 'Mr. Mahmoud', Phone: '971 55 688 6650', Email: 'crispychickenhamdan@gmail.com', Branch: 'Crispy Chicken-Hamdan St', JoinDate: '2020-01-10', Salary: 12000, Status: 'Active' },
+      { ID: 2, Name: 'Mr. Zakaria', Phone: '971 56 269 0688', Email: 'shabiha@crispychicken.rest', Branch: 'Crispy chicken Shabiya 11', JoinDate: '2020-03-15', Salary: 11000, Status: 'Active' },
+      { ID: 3, Name: 'Mr. Adel', Phone: '971 56 949 4764', Email: 'crispychicken.khalidia@gmail.com', Branch: 'Crispy chicken khaldia', JoinDate: '2019-11-20', Salary: 11500, Status: 'Active' },
+      { ID: 4, Name: 'Mr. RJ', Phone: '971 56 386 6859', Email: 'electra@crispychicken.rest', Branch: 'Crispy chicken Elactra', JoinDate: '2021-02-05', Salary: 10000, Status: 'Inactive' },
+      { ID: 5, Name: 'Mr. Tariq', Phone: '971 50 541 4641', Email: 'MOUROOR@CRISPYCHICKEN.REST', Branch: 'Crispy chicken Muroor', JoinDate: '2020-07-12', Salary: 11200, Status: 'Active' },
+      { ID: 6, Name: 'Mr. Mahmed', Phone: '971569659524', Email: 'barsha@crispychicken.rest', Branch: 'Crispy chicken Al Barsha', JoinDate: '2019-09-18', Salary: 12500, Status: 'Active' },
+      { ID: 7, Name: 'Mr. Musab', Phone: '971 56 797 0685', Email: 'satwa@crispychicken.rest', Branch: 'Crispy chicken Al Satwa', JoinDate: '2021-04-22', Salary: 11800, Status: 'Active' },
+      { ID: 8, Name: 'Mr. Zaid', Phone: '971 56 740 5572', Email: '', Branch: 'Crispy chicken Al Regga', JoinDate: '2022-01-08', Salary: 11000, Status: 'Active' }
+    ],
+    agents: [
+      { ID: 1, Name: 'Faisal Ahmed', Phone: '971 50 111 2233', Email: 'faisal@example.com', Area: 'Hamdan Street', Commission: 5, JoinDate: '2021-03-10', Status: 'Active' },
+      { ID: 2, Name: 'Rashid Abdullah', Phone: '971 55 222 3344', Email: 'rashid@example.com', Area: 'Khalidiya', Commission: 4.5, JoinDate: '2020-08-15', Status: 'Active' },
+      { ID: 3, Name: 'Omar Saeed', Phone: '971 56 333 4455', Email: 'omar@example.com', Area: 'Muroor Road', Commission: 6, JoinDate: '2021-11-20', Status: 'Active' },
+      { ID: 4, Name: 'Ahmed Khalid', Phone: '971 54 444 5566', Email: 'ahmed@example.com', Area: 'Al Barsha', Commission: 5.5, JoinDate: '2022-02-05', Status: 'Active' },
+      { ID: 5, Name: 'Mohammed Yusuf', Phone: '971 52 555 6677', Email: 'mohammed@example.com', Area: 'Al Satwa', Commission: 4, JoinDate: '2021-07-12', Status: 'Inactive' },
+      { ID: 6, Name: 'Ibrahim Omar', Phone: '971 55 666 7788', Email: 'ibrahim@example.com', Area: 'Al Reega', Commission: 7, JoinDate: '2022-05-18', Status: 'Active' }
+    ],
+    monthlySales: [
+      { ID: 1, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 1, DeliveryCount: 450, Percentage: 10, Amount: 12500 },
+      { ID: 2, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 2, DeliveryCount: 480, Percentage: 10, Amount: 13200 },
+      { ID: 3, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 3, DeliveryCount: 520, Percentage: 8, Amount: 14560 },
+      { ID: 4, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 4, DeliveryCount: 550, Percentage: 11, Amount: 15400 },
+      { ID: 5, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 5, DeliveryCount: 580, Percentage: 11, Amount: 16240 },
+      { ID: 6, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 6, DeliveryCount: 600, Percentage: 10, Amount: 16800 },
+      { ID: 7, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 7, DeliveryCount: 620, Percentage: 10, Amount: 17360 },
+      { ID: 8, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 8, DeliveryCount: 650, Percentage: 10, Amount: 18200 },
+      { ID: 9, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 9, DeliveryCount: 680, Percentage: 10, Amount: 19040 },
+      { ID: 10, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 10, DeliveryCount: 700, Percentage: 10, Amount: 19600 },
+      { ID: 11, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 12, Branch: 'Crispy Chicken-Hamdan St', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 13, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 1, DeliveryCount: 380, Percentage: 10, Amount: 10640 },
+      { ID: 14, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 2, DeliveryCount: 400, Percentage: 10, Amount: 11200 },
+      { ID: 15, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 3, DeliveryCount: 420, Percentage: 8, Amount: 11760 },
+      { ID: 16, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 4, DeliveryCount: 450, Percentage: 11, Amount: 12600 },
+      { ID: 17, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 5, DeliveryCount: 480, Percentage: 11, Amount: 13440 },
+      { ID: 18, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 6, DeliveryCount: 500, Percentage: 10, Amount: 14000 },
+      { ID: 19, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 7, DeliveryCount: 520, Percentage: 10, Amount: 14560 },
+      { ID: 20, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 8, DeliveryCount: 550, Percentage: 10, Amount: 15400 },
+      { ID: 21, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 9, DeliveryCount: 580, Percentage: 10, Amount: 16240 },
+      { ID: 22, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 10, DeliveryCount: 600, Percentage: 10, Amount: 16800 },
+      { ID: 23, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 24, Branch: 'Crispy chicken Shabiya 11', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 25, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 1, DeliveryCount: 360, Percentage: 10, Amount: 10080 },
+      { ID: 26, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 2, DeliveryCount: 380, Percentage: 10, Amount: 10640 },
+      { ID: 27, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 3, DeliveryCount: 400, Percentage: 8, Amount: 11200 },
+      { ID: 28, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 4, DeliveryCount: 430, Percentage: 11, Amount: 12040 },
+      { ID: 29, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 5, DeliveryCount: 460, Percentage: 11, Amount: 12880 },
+      { ID: 30, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 6, DeliveryCount: 480, Percentage: 10, Amount: 13440 },
+      { ID: 31, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 7, DeliveryCount: 500, Percentage: 10, Amount: 14000 },
+      { ID: 32, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 8, DeliveryCount: 530, Percentage: 10, Amount: 14840 },
+      { ID: 33, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 9, DeliveryCount: 560, Percentage: 10, Amount: 15680 },
+      { ID: 34, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 10, DeliveryCount: 580, Percentage: 10, Amount: 16240 },
+      { ID: 35, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 36, Branch: 'Crispy chicken khaldia', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 37, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 1, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 38, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 2, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 39, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 3, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 40, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 4, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 41, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 5, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 42, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 6, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 43, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 7, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 44, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 8, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 45, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 9, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 46, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 10, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 47, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 48, Branch: 'Crispy chicken Elactra', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 49, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 1, DeliveryCount: 320, Percentage: 10, Amount: 8960 },
+      { ID: 50, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 2, DeliveryCount: 340, Percentage: 10, Amount: 9520 },
+      { ID: 51, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 3, DeliveryCount: 360, Percentage: 8, Amount: 10080 },
+      { ID: 52, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 4, DeliveryCount: 390, Percentage: 11, Amount: 10920 },
+      { ID: 53, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 5, DeliveryCount: 420, Percentage: 11, Amount: 11760 },
+      { ID: 54, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 6, DeliveryCount: 440, Percentage: 10, Amount: 12320 },
+      { ID: 55, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 7, DeliveryCount: 460, Percentage: 10, Amount: 12880 },
+      { ID: 56, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 8, DeliveryCount: 490, Percentage: 10, Amount: 13720 },
+      { ID: 57, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 9, DeliveryCount: 520, Percentage: 10, Amount: 14560 },
+      { ID: 58, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 10, DeliveryCount: 540, Percentage: 10, Amount: 15120 },
+      { ID: 59, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 60, Branch: 'Crispy chicken Muroor', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 61, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 1, DeliveryCount: 420, Percentage: 10, Amount: 11760 },
+      { ID: 62, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 2, DeliveryCount: 440, Percentage: 10, Amount: 12320 },
+      { ID: 63, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 3, DeliveryCount: 460, Percentage: 8, Amount: 12880 },
+      { ID: 64, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 4, DeliveryCount: 490, Percentage: 11, Amount: 13720 },
+      { ID: 65, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 5, DeliveryCount: 520, Percentage: 11, Amount: 14560 },
+      { ID: 66, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 6, DeliveryCount: 540, Percentage: 10, Amount: 15120 },
+      { ID: 67, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 7, DeliveryCount: 560, Percentage: 10, Amount: 15680 },
+      { ID: 68, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 8, DeliveryCount: 590, Percentage: 10, Amount: 16520 },
+      { ID: 69, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 9, DeliveryCount: 620, Percentage: 10, Amount: 17360 },
+      { ID: 70, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 10, DeliveryCount: 640, Percentage: 10, Amount: 17920 },
+      { ID: 71, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 72, Branch: 'Crispy chicken Al Barsha', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 73, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 1, DeliveryCount: 380, Percentage: 10, Amount: 10640 },
+      { ID: 74, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 2, DeliveryCount: 400, Percentage: 10, Amount: 11200 },
+      { ID: 75, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 3, DeliveryCount: 420, Percentage: 8, Amount: 11760 },
+      { ID: 76, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 4, DeliveryCount: 450, Percentage: 11, Amount: 12600 },
+      { ID: 77, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 5, DeliveryCount: 480, Percentage: 11, Amount: 13440 },
+      { ID: 78, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 6, DeliveryCount: 500, Percentage: 10, Amount: 14000 },
+      { ID: 79, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 7, DeliveryCount: 520, Percentage: 10, Amount: 14560 },
+      { ID: 80, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 8, DeliveryCount: 550, Percentage: 10, Amount: 15400 },
+      { ID: 81, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 9, DeliveryCount: 580, Percentage: 10, Amount: 16240 },
+      { ID: 82, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 10, DeliveryCount: 600, Percentage: 10, Amount: 16800 },
+      { ID: 83, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 84, Branch: 'Crispy chicken Al Satwa', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      
+      { ID: 85, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 1, DeliveryCount: 300, Percentage: 10, Amount: 8400 },
+      { ID: 86, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 2, DeliveryCount: 320, Percentage: 10, Amount: 8960 },
+      { ID: 87, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 3, DeliveryCount: 340, Percentage: 8, Amount: 9520 },
+      { ID: 88, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 4, DeliveryCount: 370, Percentage: 11, Amount: 10360 },
+      { ID: 89, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 5, DeliveryCount: 400, Percentage: 11, Amount: 11200 },
+      { ID: 90, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 6, DeliveryCount: 420, Percentage: 10, Amount: 11760 },
+      { ID: 91, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 7, DeliveryCount: 440, Percentage: 10, Amount: 12320 },
+      { ID: 92, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 8, DeliveryCount: 470, Percentage: 10, Amount: 13160 },
+      { ID: 93, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 9, DeliveryCount: 500, Percentage: 10, Amount: 14000 },
+      { ID: 94, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 10, DeliveryCount: 520, Percentage: 10, Amount: 14560 },
+      { ID: 95, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 11, DeliveryCount: 0, Percentage: 0, Amount: 0 },
+      { ID: 96, Branch: 'Crispy chicken Al Regga', Year: 2025, Month: 12, DeliveryCount: 0, Percentage: 0, Amount: 0 }
+    ]
+  };
+
+  // --- EXCEL SALES DATA ---
+  const excelSalesTemplate = {
+    branches: [
+      "Crispy Chicken-Hamdan St",
+      "Crispy Chicken Khaldia",
+      "Crispy Chicken Shabiya 11",
+      "Crispy Chicken Muroor",
+      "Crispy Chicken Al Barsha",
+      "Crispy Chicken Al Satwa",
+      "Crispy Chicken Al Rgga",
+      "Crispy Chicken-ELctria"
+    ],
+    monetaryColumns: [
+      "Receipts","Keeta CARD","Cash","NOON CARD","Master card","Visa Card","Careem CARD",
+      "Delivery CARD","SMILES CARD","Delivery Cash","DELIVERO CARD","ONLINE CASH","ONLINE CARD"
+    ],
+    countColumns: [
+      "Count_Receipts","Count_Keeta","Count_Cash","Count_NOON","Count_Master","Count_Visa",
+      "Count_Careem","Count_DeliveryCard","Count_SMILES","Count_DeliveryCash","Count_DELIVERO",
+      "Count_ONLINE_Cash","Count_ONLINE_Card"
+    ],
+    monetaryValues: [110150.50,30231.60,20848.00,13624.00,13404.00,13333.00,5166.00,4610.90,3903.00,3050.00,850.00,824.00,306.00],
+    countValues: [3483,636,992,351,541,517,106,79,170,53,17,16,5]
+  };
+
+  // --- DATA PERSISTENCE ---
+  function saveDataToLocalStorage() {
+    try {
+      const dataToSave = {
+        sampleData: sampleData,
+        excelSalesData: app.excelSalesData,
+        appState: {
+          pagination: app.pagination,
+          filters: app.filters
         }
+      };
+      localStorage.setItem('crispyChickenData', JSON.stringify(dataToSave));
+    } catch (e) {
+      console.error('Failed to save data to localStorage:', e);
+      showNotification('Failed to save data locally', 'error');
+    }
+  }
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const tableRows = document.querySelectorAll('#complaintsTable tbody tr');
-            
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        });
-
-        // Filter functionality
-        document.getElementById('outletFilter').addEventListener('change', applyFilters);
-        document.getElementById('reasonFilter').addEventListener('change', applyFilters);
-        document.getElementById('responseFilter').addEventListener('change', applyFilters);
-        document.getElementById('dateFilter').addEventListener('change', applyFilters);
-
-        function applyFilters() {
-            const outlet = document.getElementById('outletFilter').value;
-            const reason = document.getElementById('reasonFilter').value;
-            const response = document.getElementById('responseFilter').value;
-            const date = document.getElementById('dateFilter').value;
-            
-            const tableRows = document.querySelectorAll('#complaintsTable tbody tr');
-            
-            tableRows.forEach(row => {
-                let show = true;
-                
-                if (outlet && !row.cells[1].textContent.includes(outlet)) {
-                    show = false;
-                }
-                
-                if (reason && !row.cells[3].textContent.includes(reason)) {
-                    show = false;
-                }
-                
-                if (response && !row.cells[6].textContent.toLowerCase().includes(response.toLowerCase())) {
-                    show = false;
-                }
-                
-                if (date && !row.cells[2].textContent.includes(date)) {
-                    show = false;
-                }
-                
-                row.style.display = show ? '' : 'none';
-            });
+  function loadDataFromLocalStorage() {
+    try {
+      const savedData = localStorage.getItem('crispyChickenData');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        
+        // Merge sample data
+        if (parsedData.sampleData) {
+          Object.keys(sampleData).forEach(key => {
+            if (parsedData.sampleData[key]) {
+              sampleData[key] = parsedData.sampleData[key];
+            }
+          });
         }
+        
+        // Load Excel data
+        if (parsedData.excelSalesData) {
+          app.excelSalesData = parsedData.excelSalesData;
+        }
+        
+        // Load app state
+        if (parsedData.appState) {
+          if (parsedData.appState.pagination) {
+            app.pagination = parsedData.appState.pagination;
+          }
+          if (parsedData.appState.filters) {
+            app.filters = parsedData.appState.filters;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load data from localStorage:', e);
+    }
+  }
 
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', function() {
+    loadDataFromLocalStorage();
+    initializeNavigation();
+    initializeMap();
+    initializeSalesChart();
+    initializeExcelImport();
+    loadAllData();
+    initializeMobileMenu();
+    initializePagination();
+  });
+
+  // --- NAVIGATION ---
+  function initializeNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const section = this.getAttribute('data-section');
+        switchSection(section);
+        
+        // Update active nav link
+        navLinks.forEach(l => {
+          l.classList.remove('active');
+          l.removeAttribute('aria-current');
         });
-    </script>
+        this.classList.add('active');
+        this.setAttribute('aria-current', 'page');
+        
+        // Close mobile menu
+        document.getElementById('nav-sidebar').classList.remove('active');
+      });
+    });
+  }
+
+  function initializeMobileMenu() {
+    const navToggle = document.getElementById('nav-toggle');
+    navToggle.addEventListener('click', function() {
+      const sidebar = document.getElementById('nav-sidebar');
+      sidebar.classList.toggle('active');
+      
+      // Update ARIA attributes
+      const isExpanded = sidebar.classList.contains('active');
+      this.setAttribute('aria-expanded', isExpanded);
+    });
+  }
+
+  function switchSection(section) {
+    // Hide all sections
+    const sections = document.querySelectorAll('.data-section');
+    sections.forEach(s => s.classList.remove('active'));
+    
+    // Show selected section
+    document.getElementById(`${section}-section`).classList.add('active');
+    app.activeSection = section;
+    
+    // Initialize section-specific functionality
+    switch(section) {
+      case 'branches':
+        renderBranches();
+        break;
+      case 'drivers':
+        renderDrivers();
+        break;
+      case 'managers':
+        renderManagers();
+        break;
+      case 'agents':
+        renderAgents();
+        break;
+      case 'sales':
+        renderMonthlySales();
+        break;
+      case 'excel-sales':
+        renderExcelSales();
+        break;
+    }
+  }
+
+  // --- MAP FUNCTIONS ---
+  function initializeMap() {
+    app.map = L.map('map').setView([24.4539, 54.3773], 11); // Centered on Abu Dhabi
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(app.map);
+  }
+
+  function updateBranchMarkers() {
+    // Clear existing markers
+    app.branchMarkers.forEach(marker => app.map.removeLayer(marker));
+    app.branchMarkers = [];
+    
+    // Add markers for each branch
+    sampleData.branches.forEach(branch => {
+      if (branch.direction && branch.direction !== 'new brunch') {
+        try {
+          const coords = branch.direction.split(',').map(Number);
+          if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+            const marker = L.marker(coords).addTo(app.map);
+            marker.bindPopup(`
+              <b>${branch['Branch Name']}</b><br>
+              ${branch.AREA}<br>
+              Manager: ${branch['Manger name']}<br>
+              <button onclick="openBranchForm(${branch.ID})" class="btn btn-primary" style="margin-top: 10px;">Edit Details</button>
+            `);
+            app.branchMarkers.push(marker);
+          }
+        } catch (error) {
+          console.error(`Invalid coordinates for branch ${branch['Branch Name']}: ${branch.direction}`);
+        }
+      }
+    });
+  }
+
+  // --- SALES CHART ---
+  function initializeSalesChart() {
+    const ctx = document.getElementById('sales-chart').getContext('2d');
+    
+    // Prepare chart data
+    const currentYear = new Date().getFullYear();
+    const monthlyData = [];
+    
+    for (let month = 1; month <= 12; month++) {
+      const monthSales = sampleData.monthlySales.filter(sale => 
+        sale.Year === currentYear && sale.Month === month
+      );
+      
+      let totalAmount = 0;
+      monthSales.forEach(sale => {
+        totalAmount += sale.Amount;
+      });
+      
+      monthlyData.push(totalAmount);
+    }
+    
+    // Create chart
+    app.salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Monthly Sales (AED)',
+          data: monthlyData,
+          backgroundColor: 'rgba(91, 192, 222, 0.2)',
+          borderColor: 'rgba(91, 192, 222, 1)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Sales: AED ' + context.parsed.y.toLocaleString();
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'AED ' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function updateSalesChart() {
+    if (app.salesChart) {
+      const currentYear = new Date().getFullYear();
+      const monthlyData = [];
+      
+      for (let month = 1; month <= 12; month++) {
+        const monthSales = sampleData.monthlySales.filter(sale => 
+          sale.Year === currentYear && sale.Month === month
+        );
+        
+        let totalAmount = 0;
+        monthSales.forEach(sale => {
+          totalAmount += sale.Amount;
+        });
+        
+        monthlyData.push(totalAmount);
+      }
+      
+      app.salesChart.data.datasets[0].data = monthlyData;
+      app.salesChart.update();
+    }
+  }
+
+  // --- EXCEL IMPORT/EXPORT ---
+  function initializeExcelImport() {
+    const importArea = document.getElementById('import-area');
+    const fileInput = document.getElementById('excel-file-input');
+    
+    // Drag and drop events
+    importArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('dragover');
+    });
+    
+    importArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+    });
+    
+    importArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleExcelFile(files[0]);
+      }
+    });
+    
+    // File input change event
+    fileInput.addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        handleExcelFile(e.target.files[0]);
+      }
+    });
+  }
+
+  function handleExcelFile(file) {
+    showLoading('excel-loading');
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // Process the first sheet
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Store the data
+        app.excelSalesData = jsonData;
+        
+        // Add to imported files list
+        addImportedFile(file.name, jsonData.length);
+        
+        // Render the dashboard
+        renderExcelSales();
+        
+        // Save to localStorage
+        saveDataToLocalStorage();
+        
+        showNotification('Excel file imported successfully!', 'success');
+      } catch (error) {
+        console.error('Error processing Excel file:', error);
+        showNotification('Error processing Excel file. Please check the format.', 'error');
+      } finally {
+        hideLoading('excel-loading');
+      }
+    };
+    
+    reader.readAsArrayBuffer(file);
+  }
+
+  function addImportedFile(fileName, rowCount) {
+    const importedFiles = document.getElementById('imported-files');
+    
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'imported-file';
+    
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'file-info';
+    fileInfo.innerHTML = `
+      <i class="fas fa-file-excel"></i>
+      <div>
+        <div>${fileName}</div>
+        <small>${rowCount} rows</small>
+      </div>
+    `;
+    
+    const fileActions = document.createElement('div');
+    fileActions.className = 'file-actions';
+    fileActions.innerHTML = `
+      <button class="action-btn" onclick="viewExcelData()" title="View" aria-label="View data">
+        <i class="fas fa-eye"></i>
+      </button>
+      <button class="action-btn delete" onclick="removeExcelData()" title="Remove" aria-label="Remove data">
+        <i class="fas fa-trash"></i>
+      </button>
+    `;
+    
+    fileDiv.appendChild(fileInfo);
+    fileDiv.appendChild(fileActions);
+    
+    // Clear previous files and add the new one
+    importedFiles.innerHTML = '';
+    importedFiles.appendChild(fileDiv);
+  }
+
+  function renderExcelSales() {
+    if (app.excelSalesData.length === 0) {
+      // Show sample data if no data is available
+      renderSampleExcelData();
+      return;
+    }
+    
+    // Render dashboard
+    renderExcelDashboard();
+    
+    // Render table
+    renderExcelTable();
+  }
+
+  function renderSampleExcelData() {
+    // Create sample data based on the template
+    const sampleData = [];
+    
+    excelSalesTemplate.branches.forEach(branch => {
+      const row = { Branch: branch };
+      
+      // Add monetary values
+      excelSalesTemplate.monetaryColumns.forEach((col, index) => {
+        row[col] = excelSalesTemplate.monetaryValues[index];
+      });
+      
+      // Add count values
+      excelSalesTemplate.countColumns.forEach((col, index) => {
+        row[col] = excelSalesTemplate.countValues[index];
+      });
+      
+      sampleData.push(row);
+    });
+    
+    app.excelSalesData = sampleData;
+    
+    // Render dashboard
+    renderExcelDashboard();
+    
+    // Render table
+    renderExcelTable();
+  }
+
+  function renderExcelDashboard() {
+    const dashboard = document.getElementById('sales-dashboard');
+    dashboard.innerHTML = '';
+    
+    // Calculate totals
+    const totals = {
+      receipts: 0,
+      cash: 0,
+      cards: 0,
+      online: 0
+    };
+    
+    const paymentMethods = {};
+    
+    app.excelSalesData.forEach(row => {
+      totals.receipts += parseFloat(row.Receipts || 0);
+      totals.cash += parseFloat(row.Cash || 0);
+      
+      // Calculate card payments
+      const cardPayments = [
+        'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
+        'Careem CARD', 'Delivery CARD', 'SMILES CARD', 'DELIVERO CARD'
+      ];
+      cardPayments.forEach(method => {
+        totals.cards += parseFloat(row[method] || 0);
+        
+        if (!paymentMethods[method]) {
+          paymentMethods[method] = 0;
+        }
+        paymentMethods[method] += parseFloat(row[method] || 0);
+      });
+      
+      // Calculate online payments
+      const onlinePayments = ['ONLINE CASH', 'ONLINE CARD'];
+      onlinePayments.forEach(method => {
+        totals.online += parseFloat(row[method] || 0);
+        
+        if (!paymentMethods[method]) {
+          paymentMethods[method] = 0;
+        }
+        paymentMethods[method] += parseFloat(row[method] || 0);
+      });
+    });
+    
+    // Create summary cards
+    const summaryCard = document.createElement('div');
+    summaryCard.className = 'sales-chart-card';
+    summaryCard.innerHTML = `
+      <h3><i class="fas fa-chart-pie"></i> Sales Summary</h3>
+      <div class="chart-canvas-container">
+        <canvas id="excel-summary-chart"></canvas>
+      </div>
+    `;
+    dashboard.appendChild(summaryCard);
+    
+    // Create payment methods chart
+    const paymentCard = document.createElement('div');
+    paymentCard.className = 'sales-chart-card';
+    paymentCard.innerHTML = `
+      <h3><i class="fas fa-credit-card"></i> Payment Methods</h3>
+      <div class="chart-canvas-container">
+        <canvas id="excel-payment-chart"></canvas>
+      </div>
+    `;
+    dashboard.appendChild(paymentCard);
+    
+    // Create payment method cards
+    const paymentMethodsCard = document.createElement('div');
+    paymentMethodsCard.className = 'sales-chart-card';
+    paymentMethodsCard.innerHTML = `
+      <h3><i class="fas fa-money-bill-wave"></i> Payment Breakdown</h3>
+      <div class="payment-methods-grid">
+        ${Object.entries(paymentMethods).map(([method, amount]) => `
+          <div class="payment-method-card">
+            <div class="icon"><i class="fas fa-credit-card"></i></div>
+            <div class="amount">AED ${amount.toLocaleString()}</div>
+            <div class="percentage">${((amount / totals.receipts) * 100).toFixed(1)}%</div>
+            <div class="method-name">${method}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    dashboard.appendChild(paymentMethodsCard);
+    
+    // Create charts after DOM elements are added
+    setTimeout(() => {
+      createExcelSummaryChart(totals);
+      createExcelPaymentChart(paymentMethods);
+    }, 100);
+  }
+
+  function createExcelSummaryChart(totals) {
+    const ctx = document.getElementById('excel-summary-chart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (app.excelCharts.summary) {
+      app.excelCharts.summary.destroy();
+    }
+    
+    app.excelCharts.summary = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Cash', 'Card Payments', 'Online Payments'],
+        datasets: [{
+          data: [totals.cash, totals.cards, totals.online],
+          backgroundColor: [
+            'rgba(40, 167, 69, 0.7)',
+            'rgba(91, 192, 222, 0.7)',
+            'rgba(255, 193, 7, 0.7)'
+          ],
+          borderColor: [
+            'rgba(40, 167, 69, 1)',
+            'rgba(91, 192, 222, 1)',
+            'rgba(255, 193, 7, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': AED ' + context.parsed.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function createExcelPaymentChart(paymentMethods) {
+    const ctx = document.getElementById('excel-payment-chart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (app.excelCharts.payment) {
+      app.excelCharts.payment.destroy();
+    }
+    
+    // Sort payment methods by amount
+    const sortedMethods = Object.entries(paymentMethods)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5); // Top 5 payment methods
+    
+    app.excelCharts.payment = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: sortedMethods.map(method => method[0]),
+        datasets: [{
+          label: 'Amount (AED)',
+          data: sortedMethods.map(method => method[1]),
+          backgroundColor: 'rgba(91, 192, 222, 0.7)',
+          borderColor: 'rgba(91, 192, 222, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'AED ' + value.toLocaleString();
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Amount: AED ' + context.parsed.y.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderExcelTable() {
+    const tbody = document.getElementById('excel-sales-table-body');
+    tbody.innerHTML = '';
+    
+    // Calculate total receipts for percentage calculation
+    const totalReceipts = app.excelSalesData.reduce((sum, row) => sum + parseFloat(row.Receipts || 0), 0);
+    
+    app.excelSalesData.forEach((row, index) => {
+      const tr = document.createElement('tr');
+      
+      // Calculate card and online payments
+      const cardPayments = [
+        'Keeta CARD', 'NOON CARD', 'Master card', 'Visa Card', 
+        'Careem CARD', 'Delivery CARD', 'SMILES CARD', 'DELIVERO CARD'
+      ].reduce((sum, method) => sum + parseFloat(row[method] || 0), 0);
+      
+      const onlinePayments = ['ONLINE CASH', 'ONLINE CARD']
+        .reduce((sum, method) => sum + parseFloat(row[method] || 0), 0);
+      
+      const cashPayment = parseFloat(row.Cash || 0);
+      const receipts = parseFloat(row.Receipts || 0);
+      const percentage = totalReceipts > 0 ? (receipts / totalReceipts * 100).toFixed(1) : 0;
+      
+      tr.innerHTML = `
+        <td>${row.Branch}</td>
+        <td>AED ${receipts.toLocaleString()}</td>
+        <td>${percentage}%</td>
+        <td>AED ${cashPayment.toLocaleString()}</td>
+        <td>AED ${cardPayments.toLocaleString()}</td>
+        <td>AED ${onlinePayments.toLocaleString()}</td>
+        <td>
+          <button class="action-btn" onclick="viewExcelRowDetails(${index})" title="View Details" aria-label="View details">
+            <i class="fas fa-eye"></i>
+          </button>
+        </td>
+      `;
+      
+      tbody.appendChild(tr);
+    });
+  }
+
+  function viewExcelData() {
+    switchSection('excel-sales');
+  }
+
+  function removeExcelData() {
+    if (confirm('Are you sure you want to remove the imported Excel data?')) {
+      app.excelSalesData = [];
+      document.getElementById('imported-files').innerHTML = '';
+      document.getElementById('sales-dashboard').innerHTML = '';
+      document.getElementById('excel-sales-table-body').innerHTML = '';
+      
+      // Destroy charts
+      Object.values(app.excelCharts).forEach(chart => {
+        if (chart) chart.destroy();
+      });
+      app.excelCharts = {};
+      
+      saveDataToLocalStorage();
+      showNotification('Excel data removed successfully', 'success');
+    }
+  }
+
+  function viewExcelRowDetails(index) {
+    const row = app.excelSalesData[index];
+    
+    // Create a popup to show row details
+    const popup = document.createElement('div');
+    popup.className = 'form-popup';
+    popup.style.display = 'flex';
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-labelledby', 'excel-details-title');
+    popup.setAttribute('aria-modal', 'true');
+    
+    popup.innerHTML = `
+      <div class="form-container">
+        <span class="close-btn" onclick="this.parentElement.parentElement.remove()" aria-label="Close">&times;</span>
+        <h2 class="form-title" id="excel-details-title">
+          <i class="fas fa-file-excel"></i> ${row.Branch} - Payment Details
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          ${Object.entries(row).map(([key, value]) => `
+            <div class="form-group">
+              <label>${key}</label>
+              <input type="text" value="${value}" readonly aria-label="${key}">
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(popup);
+  }
+
+  function downloadTemplate() {
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Create sample data
+    const sampleData = [];
+    
+    excelSalesTemplate.branches.forEach(branch => {
+      const row = { Branch: branch };
+      
+      // Add monetary columns
+      excelSalesTemplate.monetaryColumns.forEach((col, index) => {
+        row[col] = 0; // Initialize with 0
+      });
+      
+      // Add count columns
+      excelSalesTemplate.countColumns.forEach((col, index) => {
+        row[col] = 0; // Initialize with 0
+      });
+      
+      sampleData.push(row);
+    });
+    
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Sales Data");
+    
+    // Generate and download the file
+    XLSX.writeFile(wb, "crispy_chicken_sales_template.xlsx");
+    
+    showNotification('Template downloaded successfully', 'success');
+  }
+
+  function exportExcelData() {
+    if (app.excelSalesData.length === 0) {
+      showNotification('No data to export. Please import an Excel file first.', 'error');
+      return;
+    }
+    
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(app.excelSalesData);
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Sales Data");
+    
+    // Generate and download the file
+    const fileName = `crispy_chicken_sales_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    showNotification('Data exported successfully', 'success');
+  }
+
+  // --- DATA LOADING ---
+  function loadAllData() {
+    // Update dashboard counters
+    updateDashboardCounters();
+    
+    // Update branch markers on map
+    updateBranchMarkers();
+  }
+
+  function updateDashboardCounters() {
+    document.getElementById('total-branches').textContent = sampleData.branches.length;
+    document.getElementById('total-drivers').textContent = sampleData.drivers.length;
+    document.getElementById('total-managers').textContent = sampleData.managers.length;
+    document.getElementById('total-agents').textContent = sampleData.agents.length;
+    
+    // Calculate total sales
+    const totalSales = sampleData.monthlySales.reduce((sum, sale) => sum + sale.Amount, 0);
+    document.getElementById('total-sales').textContent = `AED ${totalSales.toLocaleString()}`;
+    
+    // Calculate active branches
+    const activeBranches = sampleData.branches.filter(b => b['Delivery status'] === 'Yes').length;
+    document.getElementById('active-branches').textContent = activeBranches;
+    
+    // Calculate total bikes
+    let totalBikes = 0;
+    sampleData.branches.forEach(branch => {
+      totalBikes += parseInt(branch['Number bikes'] || 0);
+    });
+    document.getElementById('total-bikes').textContent = totalBikes;
+    
+    // Calculate total staff
+    const totalStaff = sampleData.drivers.length + sampleData.managers.length + sampleData.agents.length;
+    document.getElementById('total-staff').textContent = totalStaff;
+    
+    // Calculate average rating
+    let totalRating = 0;
+    let ratingCount = 0;
+    sampleData.branches.forEach(branch => {
+      if (branch.RATE && !isNaN(parseFloat(branch.RATE))) {
+        totalRating += parseFloat(branch.RATE);
+        ratingCount++;
+      }
+    });
+    const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '0';
+    document.getElementById('avg-rating').textContent = avgRating;
+  }
+
+  // --- PAGINATION ---
+  function initializePagination() {
+    // Initialize pagination controls for all sections
+    ['branches', 'drivers', 'managers', 'agents', 'sales'].forEach(section => {
+      const pagination = document.getElementById(`${section}-pagination`);
+      if (pagination) {
+        pagination.innerHTML = `
+          <button onclick="changePage('${section}', -1)" aria-label="Previous page">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="pagination-info"></span>
+          <button onclick="changePage('${section}', 1)" aria-label="Next page">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        `;
+      }
+    });
+  }
+
+  function changePage(section, direction) {
+    const pagination = app.pagination[section];
+    const newPage = pagination.currentPage + direction;
+    
+    // Get filtered data
+    let filteredData = [];
+    switch(section) {
+      case 'branches':
+        filteredData = getFilteredBranches();
+        break;
+      case 'drivers':
+        filteredData = getFilteredDrivers();
+        break;
+      case 'managers':
+        filteredData = getFilteredManagers();
+        break;
+      case 'agents':
+        filteredData = getFilteredAgents();
+        break;
+      case 'sales':
+        filteredData = getFilteredSales();
+        break;
+    }
+    
+    const totalPages = Math.ceil(filteredData.length / pagination.itemsPerPage);
+    
+    if (newPage >= 1 && newPage <= totalPages) {
+      pagination.currentPage = newPage;
+      
+      // Re-render the section
+      switch(section) {
+        case 'branches':
+          renderBranches();
+          break;
+        case 'drivers':
+          renderDrivers();
+          break;
+        case 'managers':
+          renderManagers();
+          break;
+        case 'agents':
+          renderAgents();
+          break;
+        case 'sales':
+          renderMonthlySales();
+          break;
+      }
+    }
+  }
+
+  function updatePagination(section, filteredData) {
+    const pagination = app.pagination[section];
+    const totalPages = Math.ceil(filteredData.length / pagination.itemsPerPage);
+    const startItem = (pagination.currentPage - 1) * pagination.itemsPerPage + 1;
+    const endItem = Math.min(pagination.currentPage * pagination.itemsPerPage, filteredData.length);
+    
+    const paginationElement = document.getElementById(`${section}-pagination`);
+    if (paginationElement) {
+      const prevButton = paginationElement.querySelector('button:first-child');
+      const nextButton = paginationElement.querySelector('button:last-child');
+      const infoSpan = paginationElement.querySelector('.pagination-info');
+      
+      // Update buttons
+      prevButton.disabled = pagination.currentPage === 1;
+      nextButton.disabled = pagination.currentPage === totalPages || totalPages === 0;
+      
+      // Update info
+      infoSpan.textContent = filteredData.length > 0 
+        ? `${startItem}-${endItem} of ${filteredData.length}`
+        : 'No data';
+    }
+  }
+
+  function getPaginatedData(data, section) {
+    const pagination = app.pagination[section];
+    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+    const endIndex = startIndex + pagination.itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  }
+
+  // --- BRANCH MANAGEMENT ---
+  function getFilteredBranches() {
+    const searchTerm = document.getElementById('branch-search').value.toLowerCase();
+    const cityFilter = app.filters.branches.city;
+    
+    return sampleData.branches.filter(branch => {
+      const matchesSearch = !searchTerm || 
+        branch['Branch Name'].toLowerCase().includes(searchTerm) ||
+        branch.City.toLowerCase().includes(searchTerm) ||
+        branch.AREA.toLowerCase().includes(searchTerm);
+      
+      const matchesCity = !cityFilter || branch.City === cityFilter;
+      
+      return matchesSearch && matchesCity;
+    });
+  }
+
+  function renderBranches() {
+    showLoading('branches-loading');
+    
+    setTimeout(() => {
+      const filteredData = getFilteredBranches();
+      const paginatedData = getPaginatedData(filteredData, 'branches');
+      
+      const tbody = document.getElementById('branch-table-body');
+      tbody.innerHTML = '';
+      
+      paginatedData.forEach(branch => {
+        const row = tbody.insertRow();
+        const statusClass = branch['Delivery status'] === 'Yes' ? 'status-active' : 'status-inactive';
+        
+        row.innerHTML = `
+          <td>${branch.ID}</td>
+          <td>${branch['Branch Name']}</td>
+          <td>${branch.City}</td>
+          <td>${branch.AREA}</td>
+          <td>${branch['Manger name']}</td>
+          <td><span class="status-badge ${statusClass}">${branch['Delivery status']}</span></td>
+          <td>
+            <button class="action-btn" onclick="openBranchForm(${branch.ID})" title="Edit" aria-label="Edit branch">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete" onclick="deleteBranch(${branch.ID})" title="Delete" aria-label="Delete branch">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+      });
+      
+      hideLoading('branches-loading');
+      updatePagination('branches', filteredData);
+      initializeBranchSearch();
+      initializeBranchFilters();
+    }, 300);
+  }
+
+  function initializeBranchSearch() {
+    const searchInput = document.getElementById('branch-search');
+    
+    // Clear previous timeout
+    if (app.searchTimeout) {
+      clearTimeout(app.searchTimeout);
+    }
+    
+    // Debounce search
+    searchInput.addEventListener('keyup', function() {
+      app.searchTimeout = setTimeout(() => {
+        app.pagination.branches.currentPage = 1; // Reset to first page
+        renderBranches();
+      }, 300);
+    });
+  }
+
+  function initializeBranchFilters() {
+    const cityFilter = document.getElementById('branch-city-filter');
+    cityFilter.addEventListener('change', function() {
+      app.filters.branches.city = this.value;
+      app.pagination.branches.currentPage = 1; // Reset to first page
+      renderBranches();
+    });
+  }
+
+  function openBranchForm(id = null) {
+    const formPopup = document.getElementById('branch-form-popup');
+    formPopup.style.display = 'flex';
+    
+    // Populate manager dropdown
+    const managerSelect = document.getElementById('branch-manager');
+    managerSelect.innerHTML = '<option value="">Select Manager</option>';
+    sampleData.managers.forEach(manager => {
+      const option = document.createElement('option');
+      option.value = manager.Name;
+      option.textContent = manager.Name;
+      managerSelect.appendChild(option);
+    });
+    
+    if (id) {
+      // Edit existing branch
+      const branch = sampleData.branches.find(b => b.ID === id);
+      if (branch) {
+        document.getElementById('branch-form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Branch';
+        document.getElementById('branch-submit-btn').textContent = 'Update Branch';
+        document.getElementById('branch-edit-id').value = branch.ID;
+        document.getElementById('branch-delete-btn').style.display = 'inline-block';
+        
+        // Populate form fields
+        document.getElementById('branch-name').value = branch['Branch Name'];
+        document.getElementById('branch-city').value = branch.City;
+        document.getElementById('branch-direction').value = branch.direction;
+        document.getElementById('branch-area').value = branch.AREA;
+        document.getElementById('branch-landline').value = branch['Land line'];
+        document.getElementById('branch-google-site').value = branch['Google site'];
+        document.getElementById('branch-rate').value = branch.RATE;
+        document.getElementById('branch-manager').value = branch['Manger name'];
+        document.getElementById('branch-email').value = branch['Email address'];
+        document.getElementById('branch-delivery-status').value = branch['Delivery status'];
+        document.getElementById('branch-link-online').value = branch['Link online'];
+        document.getElementById('branch-num-bikes').value = branch['Number bikes'];
+        document.getElementById('branch-num-drivers').value = branch['Number driver'];
+        document.getElementById('branch-talabat-device').value = branch['Talabat device'];
+        document.getElementById('branch-noon-device').value = branch['Noon device'];
+        document.getElementById('branch-careem-device').value = branch['Careen device'];
+        document.getElementById('branch-deliveroo-device').value = branch['Deliveroo device'];
+        document.getElementById('branch-smile-device').value = branch['Smile device'];
+        document.getElementById('branch-talabana-device').value = branch['Talabana device'];
+      }
+    } else {
+      // Add new branch
+      document.getElementById('branch-form-title').innerHTML = '<i class="fas fa-plus"></i> Add New Branch';
+      document.getElementById('branch-submit-btn').textContent = 'Add Branch';
+      document.getElementById('branch-edit-id').value = '';
+      document.getElementById('branch-delete-btn').style.display = 'none';
+      document.getElementById('branch-form').reset();
+    }
+  }
+
+  function deleteBranch(id) {
+    if (confirm('Are you sure you want to delete this branch? This cannot be undone.')) {
+      const branch = sampleData.branches.find(b => b.ID === id);
+      const branchName = branch ? branch['Branch Name'] : '';
+      
+      const index = sampleData.branches.findIndex(b => b.ID === id);
+      if (index !== -1) {
+        sampleData.branches.splice(index, 1);
+        
+        // Update related drivers
+        sampleData.drivers.forEach(driver => {
+          if (driver.Branch === branchName) {
+            driver.Branch = 'Unassigned';
+          }
+        });
+        
+        // Update related managers
+        sampleData.managers.forEach(manager => {
+          if (manager.Branch === branchName) {
+            manager.Branch = 'Unassigned';
+          }
+        });
+        
+        // Update related sales
+        sampleData.monthlySales.forEach(sale => {
+          if (sale.Branch === branchName) {
+            sale.Branch = 'Deleted Branch';
+          }
+        });
+        
+        updateDataAndRefresh();
+        showNotification('Branch deleted successfully!', 'success');
+      }
+    }
+  }
+
+  // --- DRIVER MANAGEMENT ---
+  function getFilteredDrivers() {
+    const searchTerm = document.getElementById('driver-search').value.toLowerCase();
+    const branchFilter = app.filters.drivers.branch;
+    
+    return sampleData.drivers.filter(driver => {
+      const matchesSearch = !searchTerm || 
+        driver.Name.toLowerCase().includes(searchTerm) ||
+        driver.Phone.toLowerCase().includes(searchTerm) ||
+        driver.Branch.toLowerCase().includes(searchTerm);
+      
+      const matchesBranch = !branchFilter || driver.Branch === branchFilter;
+      
+      return matchesSearch && matchesBranch;
+    });
+  }
+
+  function renderDrivers() {
+    showLoading('drivers-loading');
+    
+    setTimeout(() => {
+      const filteredData = getFilteredDrivers();
+      const paginatedData = getPaginatedData(filteredData, 'drivers');
+      
+      const tbody = document.getElementById('driver-table-body');
+      tbody.innerHTML = '';
+      
+      paginatedData.forEach(driver => {
+        const row = tbody.insertRow();
+        const statusClass = driver.Status === 'Active' ? 'status-active' : 'status-inactive';
+        
+        row.innerHTML = `
+          <td>${driver.ID}</td>
+          <td>${driver.Name}</td>
+          <td>${driver.Phone}</td>
+          <td>${driver.Branch}</td>
+          <td>${driver.License}</td>
+          <td><span class="status-badge ${statusClass}">${driver.Status}</span></td>
+          <td>
+            <button class="action-btn" onclick="openDriverForm(${driver.ID})" title="Edit" aria-label="Edit driver">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete" onclick="deleteDriver(${driver.ID})" title="Delete" aria-label="Delete driver">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+      });
+      
+      hideLoading('drivers-loading');
+      updatePagination('drivers', filteredData);
+      initializeDriverSearch();
+      initializeDriverFilters();
+    }, 300);
+  }
+
+  function initializeDriverSearch() {
+    const searchInput = document.getElementById('driver-search');
+    
+    // Clear previous timeout
+    if (app.searchTimeout) {
+      clearTimeout(app.searchTimeout);
+    }
+    
+    // Debounce search
+    searchInput.addEventListener('keyup', function() {
+      app.searchTimeout = setTimeout(() => {
+        app.pagination.drivers.currentPage = 1; // Reset to first page
+        renderDrivers();
+      }, 300);
+    });
+  }
+
+  function initializeDriverFilters() {
+    const branchFilter = document.getElementById('driver-branch-filter');
+    
+    // Populate branch filter options
+    branchFilter.innerHTML = '<option value="">All Branches</option>';
+    sampleData.branches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch['Branch Name'];
+      option.textContent = branch['Branch Name'];
+      branchFilter.appendChild(option);
+    });
+    
+    branchFilter.addEventListener('change', function() {
+      app.filters.drivers.branch = this.value;
+      app.pagination.drivers.currentPage = 1; // Reset to first page
+      renderDrivers();
+    });
+  }
+
+  function openDriverForm(id = null) {
+    const formPopup = document.getElementById('driver-form-popup');
+    formPopup.style.display = 'flex';
+    
+    // Populate branch dropdown
+    const branchSelect = document.getElementById('driver-branch');
+    branchSelect.innerHTML = '<option value="">Select Branch</option>';
+    sampleData.branches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch['Branch Name'];
+      option.textContent = branch['Branch Name'];
+      branchSelect.appendChild(option);
+    });
+    
+    if (id) {
+      // Edit existing driver
+      const driver = sampleData.drivers.find(d => d.ID === id);
+      if (driver) {
+        document.getElementById('driver-form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Driver';
+        document.getElementById('driver-submit-btn').textContent = 'Update Driver';
+        document.getElementById('driver-edit-id').value = driver.ID;
+        document.getElementById('driver-delete-btn').style.display = 'inline-block';
+        
+        // Populate form fields
+        document.getElementById('driver-name').value = driver.Name;
+        document.getElementById('driver-phone').value = driver.Phone;
+        document.getElementById('driver-email').value = driver.Email;
+        document.getElementById('driver-branch').value = driver.Branch;
+        document.getElementById('driver-license').value = driver.License;
+        document.getElementById('driver-license-expiry').value = driver.LicenseExpiry;
+        document.getElementById('driver-join-date').value = driver.JoinDate;
+        document.getElementById('driver-salary').value = driver.Salary;
+        document.getElementById('driver-status').value = driver.Status;
+      }
+    } else {
+      // Add new driver
+      document.getElementById('driver-form-title').innerHTML = '<i class="fas fa-plus"></i> Add New Driver';
+      document.getElementById('driver-submit-btn').textContent = 'Add Driver';
+      document.getElementById('driver-edit-id').value = '';
+      document.getElementById('driver-delete-btn').style.display = 'none';
+      document.getElementById('driver-form').reset();
+    }
+  }
+
+  function deleteDriver(id) {
+    if (confirm('Are you sure you want to delete this driver? This cannot be undone.')) {
+      const index = sampleData.drivers.findIndex(d => d.ID === id);
+      if (index !== -1) {
+        sampleData.drivers.splice(index, 1);
+        updateDataAndRefresh();
+        showNotification('Driver deleted successfully!', 'success');
+      }
+    }
+  }
+
+  // --- MANAGER MANAGEMENT ---
+  function getFilteredManagers() {
+    const searchTerm = document.getElementById('manager-search').value.toLowerCase();
+    const branchFilter = app.filters.managers.branch;
+    
+    return sampleData.managers.filter(manager => {
+      const matchesSearch = !searchTerm || 
+        manager.Name.toLowerCase().includes(searchTerm) ||
+        manager.Phone.toLowerCase().includes(searchTerm) ||
+        manager.Branch.toLowerCase().includes(searchTerm);
+      
+      const matchesBranch = !branchFilter || manager.Branch === branchFilter;
+      
+      return matchesSearch && matchesBranch;
+    });
+  }
+
+  function renderManagers() {
+    showLoading('managers-loading');
+    
+    setTimeout(() => {
+      const filteredData = getFilteredManagers();
+      const paginatedData = getPaginatedData(filteredData, 'managers');
+      
+      const tbody = document.getElementById('manager-table-body');
+      tbody.innerHTML = '';
+      
+      paginatedData.forEach(manager => {
+        const row = tbody.insertRow();
+        const statusClass = manager.Status === 'Active' ? 'status-active' : 'status-inactive';
+        
+        row.innerHTML = `
+          <td>${manager.ID}</td>
+          <td>${manager.Name}</td>
+          <td>${manager.Phone}</td>
+          <td>${manager.Email}</td>
+          <td>${manager.Branch}</td>
+          <td><span class="status-badge ${statusClass}">${manager.Status}</span></td>
+          <td>
+            <button class="action-btn" onclick="openManagerForm(${manager.ID})" title="Edit" aria-label="Edit manager">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete" onclick="deleteManager(${manager.ID})" title="Delete" aria-label="Delete manager">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+      });
+      
+      hideLoading('managers-loading');
+      updatePagination('managers', filteredData);
+      initializeManagerSearch();
+      initializeManagerFilters();
+    }, 300);
+  }
+
+  function initializeManagerSearch() {
+    const searchInput = document.getElementById('manager-search');
+    
+    // Clear previous timeout
+    if (app.searchTimeout) {
+      clearTimeout(app.searchTimeout);
+    }
+    
+    // Debounce search
+    searchInput.addEventListener('keyup', function() {
+      app.searchTimeout = setTimeout(() => {
+        app.pagination.managers.currentPage = 1; // Reset to first page
+        renderManagers();
+      }, 300);
+    });
+  }
+
+  function initializeManagerFilters() {
+    const branchFilter = document.getElementById('manager-branch-filter');
+    
+    // Populate branch filter options
+    branchFilter.innerHTML = '<option value="">All Branches</option>';
+    sampleData.branches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch['Branch Name'];
+      option.textContent = branch['Branch Name'];
+      branchFilter.appendChild(option);
+    });
+    
+    branchFilter.addEventListener('change', function() {
+      app.filters.managers.branch = this.value;
+      app.pagination.managers.currentPage = 1; // Reset to first page
+      renderManagers();
+    });
+  }
+
+  function openManagerForm(id = null) {
+    const formPopup = document.getElementById('manager-form-popup');
+    formPopup.style.display = 'flex';
+    
+    // Populate branch dropdown
+    const branchSelect = document.getElementById('manager-branch');
+    branchSelect.innerHTML = '<option value="">Select Branch</option>';
+    sampleData.branches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch['Branch Name'];
+      option.textContent = branch['Branch Name'];
+      branchSelect.appendChild(option);
+    });
+    
+    if (id) {
+      // Edit existing manager
+      const manager = sampleData.managers.find(m => m.ID === id);
+      if (manager) {
+        document.getElementById('manager-form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Manager';
+        document.getElementById('manager-submit-btn').textContent = 'Update Manager';
+        document.getElementById('manager-edit-id').value = manager.ID;
+        document.getElementById('manager-delete-btn').style.display = 'inline-block';
+        
+        // Populate form fields
+        document.getElementById('manager-name').value = manager.Name;
+        document.getElementById('manager-phone').value = manager.Phone;
+        document.getElementById('manager-email').value = manager.Email;
+        document.getElementById('manager-branch').value = manager.Branch;
+        document.getElementById('manager-join-date').value = manager.JoinDate;
+        document.getElementById('manager-salary').value = manager.Salary;
+        document.getElementById('manager-status').value = manager.Status;
+      }
+    } else {
+      // Add new manager
+      document.getElementById('manager-form-title').innerHTML = '<i class="fas fa-plus"></i> Add New Manager';
+      document.getElementById('manager-submit-btn').textContent = 'Add Manager';
+      document.getElementById('manager-edit-id').value = '';
+      document.getElementById('manager-delete-btn').style.display = 'none';
+      document.getElementById('manager-form').reset();
+    }
+  }
+
+  function deleteManager(id) {
+    if (confirm('Are you sure you want to delete this manager? This cannot be undone.')) {
+      const manager = sampleData.managers.find(m => m.ID === id);
+      const managerName = manager ? manager.Name : '';
+      
+      const index = sampleData.managers.findIndex(m => m.ID === id);
+      if (index !== -1) {
+        sampleData.managers.splice(index, 1);
+        
+        // Update related branches
+        sampleData.branches.forEach(branch => {
+          if (branch['Manger name'] === managerName) {
+            branch['Manger name'] = 'Unassigned';
+          }
+        });
+        
+        updateDataAndRefresh();
+        showNotification('Manager deleted successfully!', 'success');
+      }
+    }
+  }
+
+  // --- AGENT MANAGEMENT ---
+  function getFilteredAgents() {
+    const searchTerm = document.getElementById('agent-search').value.toLowerCase();
+    const statusFilter = app.filters.agents.status;
+    
+    return sampleData.agents.filter(agent => {
+      const matchesSearch = !searchTerm || 
+        agent.Name.toLowerCase().includes(searchTerm) ||
+        agent.Phone.toLowerCase().includes(searchTerm) ||
+        agent.Area.toLowerCase().includes(searchTerm);
+      
+      const matchesStatus = !statusFilter || agent.Status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  function renderAgents() {
+    showLoading('agents-loading');
+    
+    setTimeout(() => {
+      const filteredData = getFilteredAgents();
+      const paginatedData = getPaginatedData(filteredData, 'agents');
+      
+      const tbody = document.getElementById('agent-table-body');
+      tbody.innerHTML = '';
+      
+      paginatedData.forEach(agent => {
+        const row = tbody.insertRow();
+        const statusClass = agent.Status === 'Active' ? 'status-active' : 'status-inactive';
+        
+        row.innerHTML = `
+          <td>${agent.ID}</td>
+          <td>${agent.Name}</td>
+          <td>${agent.Phone}</td>
+          <td>${agent.Area}</td>
+          <td>${agent.Commission}%</td>
+          <td><span class="status-badge ${statusClass}">${agent.Status}</span></td>
+          <td>
+            <button class="action-btn" onclick="openAgentForm(${agent.ID})" title="Edit" aria-label="Edit agent">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete" onclick="deleteAgent(${agent.ID})" title="Delete" aria-label="Delete agent">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+      });
+      
+      hideLoading('agents-loading');
+      updatePagination('agents', filteredData);
+      initializeAgentSearch();
+      initializeAgentFilters();
+    }, 300);
+  }
+
+  function initializeAgentSearch() {
+    const searchInput = document.getElementById('agent-search');
+    
+    // Clear previous timeout
+    if (app.searchTimeout) {
+      clearTimeout(app.searchTimeout);
+    }
+    
+    // Debounce search
+    searchInput.addEventListener('keyup', function() {
+      app.searchTimeout = setTimeout(() => {
+        app.pagination.agents.currentPage = 1; // Reset to first page
+        renderAgents();
+      }, 300);
+    });
+  }
+
+  function initializeAgentFilters() {
+    const statusFilter = document.getElementById('agent-status-filter');
+    statusFilter.addEventListener('change', function() {
+      app.filters.agents.status = this.value;
+      app.pagination.agents.currentPage = 1; // Reset to first page
+      renderAgents();
+    });
+  }
+
+  function openAgentForm(id = null) {
+    const formPopup = document.getElementById('agent-form-popup');
+    formPopup.style.display = 'flex';
+    
+    if (id) {
+      // Edit existing agent
+      const agent = sampleData.agents.find(a => a.ID === id);
+      if (agent) {
+        document.getElementById('agent-form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Agent';
+        document.getElementById('agent-submit-btn').textContent = 'Update Agent';
+        document.getElementById('agent-edit-id').value = agent.ID;
+        document.getElementById('agent-delete-btn').style.display = 'inline-block';
+        
+        // Populate form fields
+        document.getElementById('agent-name').value = agent.Name;
+        document.getElementById('agent-phone').value = agent.Phone;
+        document.getElementById('agent-email').value = agent.Email;
+        document.getElementById('agent-area').value = agent.Area;
+        document.getElementById('agent-commission').value = agent.Commission;
+        document.getElementById('agent-join-date').value = agent.JoinDate;
+        document.getElementById('agent-status').value = agent.Status;
+      }
+    } else {
+      // Add new agent
+      document.getElementById('agent-form-title').innerHTML = '<i class="fas fa-plus"></i> Add New Agent';
+      document.getElementById('agent-submit-btn').textContent = 'Add Agent';
+      document.getElementById('agent-edit-id').value = '';
+      document.getElementById('agent-delete-btn').style.display = 'none';
+      document.getElementById('agent-form').reset();
+    }
+  }
+
+  function deleteAgent(id) {
+    if (confirm('Are you sure you want to delete this agent? This cannot be undone.')) {
+      const index = sampleData.agents.findIndex(a => a.ID === id);
+      if (index !== -1) {
+        sampleData.agents.splice(index, 1);
+        updateDataAndRefresh();
+        showNotification('Agent deleted successfully!', 'success');
+      }
+    }
+  }
+
+  // --- MONTHLY SALES MANAGEMENT ---
+  function getFilteredSales() {
+    const searchTerm = document.getElementById('monthly-sales-search').value.toLowerCase();
+    const yearFilter = app.filters.sales.year;
+    
+    return sampleData.monthlySales.filter(sale => {
+      const matchesSearch = !searchTerm || 
+        sale.Branch.toLowerCase().includes(searchTerm) ||
+        getMonthName(sale.Month).toLowerCase().includes(searchTerm);
+      
+      const matchesYear = !yearFilter || sale.Year == yearFilter;
+      
+      return matchesSearch && matchesYear;
+    });
+  }
+
+  function renderMonthlySales() {
+    showLoading('sales-loading');
+    
+    setTimeout(() => {
+      // Render monthly sales summary cards
+      renderMonthlySalesSummary();
+      
+      // Render monthly sales table
+      const filteredData = getFilteredSales();
+      const paginatedData = getPaginatedData(filteredData, 'sales');
+      
+      const tbody = document.getElementById('monthly-sales-table-body');
+      tbody.innerHTML = '';
+      
+      paginatedData.forEach(sale => {
+        const row = tbody.insertRow();
+        
+        // Determine percentage class for styling
+        let percentageClass = '';
+        if (sale.Percentage >= 10) {
+          percentageClass = 'percentage-high';
+        } else if (sale.Percentage >= 8) {
+          percentageClass = 'percentage-medium';
+        } else {
+          percentageClass = 'percentage-low';
+        }
+        
+        row.innerHTML = `
+          <td>${sale.ID}</td>
+          <td>${sale.Branch}</td>
+          <td>${sale.Year}</td>
+          <td>${getMonthName(sale.Month)}</td>
+          <td>${sale.DeliveryCount}</td>
+          <td><span class="${percentageClass}">${sale.Percentage}%</span></td>
+          <td>AED ${sale.Amount.toLocaleString()}</td>
+          <td>
+            <button class="action-btn" onclick="openMonthlySalesForm(${sale.ID})" title="Edit" aria-label="Edit sales">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete" onclick="deleteMonthlySales(${sale.ID})" title="Delete" aria-label="Delete sales">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+      });
+      
+      hideLoading('sales-loading');
+      updatePagination('sales', filteredData);
+      initializeMonthlySalesSearch();
+      initializeMonthlySalesFilters();
+    }, 300);
+  }
+
+  function renderMonthlySalesSummary() {
+    const summaryContainer = document.getElementById('monthly-sales-summary');
+    summaryContainer.innerHTML = '';
+    
+    // Get current year and month
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    
+    // Calculate summary data for each month of the current year
+    for (let month = 1; month <= 12; month++) {
+      // Find sales data for this month
+      const monthSales = sampleData.monthlySales.filter(sale => 
+        sale.Year === currentYear && sale.Month === month
+      );
+      
+      // Calculate totals for this month
+      let totalDeliveryCount = 0;
+      let totalAmount = 0;
+      let avgPercentage = 0;
+      
+      if (monthSales.length > 0) {
+        monthSales.forEach(sale => {
+          totalDeliveryCount += sale.DeliveryCount;
+          totalAmount += sale.Amount;
+          avgPercentage += sale.Percentage;
+        });
+        avgPercentage = avgPercentage / monthSales.length;
+      }
+      
+      // Create summary card
+      const card = document.createElement('div');
+      card.className = 'monthly-sales-card';
+      
+      // Determine percentage class for styling
+      let percentageClass = '';
+      if (avgPercentage >= 10) {
+        percentageClass = 'percentage-high';
+      } else if (avgPercentage >= 8) {
+        percentageClass = 'percentage-medium';
+      } else {
+        percentageClass = 'percentage-low';
+      }
+      
+      // Highlight current month
+      if (month === currentMonth) {
+        card.style.border = '2px solid var(--primary)';
+      }
+      
+      card.innerHTML = `
+        <div class="month">${getMonthName(month)}</div>
+        <div class="percentage ${percentageClass}">${avgPercentage.toFixed(1)}%</div>
+        <div class="delivery-count">${totalDeliveryCount} deliveries</div>
+      `;
+      
+      summaryContainer.appendChild(card);
+    }
+  }
+
+  function initializeMonthlySalesSearch() {
+    const searchInput = document.getElementById('monthly-sales-search');
+    const yearFilter = document.getElementById('year-filter');
+    
+    // Clear previous timeout
+    if (app.searchTimeout) {
+      clearTimeout(app.searchTimeout);
+    }
+    
+    // Debounce search
+    searchInput.addEventListener('keyup', function() {
+      app.searchTimeout = setTimeout(() => {
+        app.pagination.sales.currentPage = 1; // Reset to first page
+        renderMonthlySales();
+      }, 300);
+    });
+    
+    yearFilter.addEventListener('change', function() {
+      app.filters.sales.year = this.value;
+      app.pagination.sales.currentPage = 1; // Reset to first page
+      renderMonthlySales();
+    });
+  }
+
+  function initializeMonthlySalesFilters() {
+    // Year filter is already handled in initializeMonthlySalesSearch
+  }
+
+  function openMonthlySalesForm(id = null) {
+    const formPopup = document.getElementById('monthly-sales-form-popup');
+    formPopup.style.display = 'flex';
+    
+    // Populate branch dropdown
+    const branchSelect = document.getElementById('monthly-sales-branch');
+    branchSelect.innerHTML = '<option value="">Select Branch</option>';
+    sampleData.branches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch['Branch Name'];
+      option.textContent = branch['Branch Name'];
+      branchSelect.appendChild(option);
+    });
+    
+    // Populate year dropdown
+    const yearSelect = document.getElementById('monthly-sales-year');
+    yearSelect.innerHTML = '';
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear - 2; year <= currentYear + 2; year++) {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      yearSelect.appendChild(option);
+    }
+    
+    // Populate month dropdown
+    const monthSelect = document.getElementById('monthly-sales-month');
+    monthSelect.innerHTML = '';
+    for (let month = 1; month <= 12; month++) {
+      const option = document.createElement('option');
+      option.value = month;
+      option.textContent = getMonthName(month);
+      monthSelect.appendChild(option);
+    }
+    
+    if (id) {
+      // Edit existing monthly sales
+      const sale = sampleData.monthlySales.find(s => s.ID === id);
+      if (sale) {
+        document.getElementById('monthly-sales-form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Monthly Sales';
+        document.getElementById('monthly-sales-submit-btn').textContent = 'Update Monthly Sales';
+        document.getElementById('monthly-sales-edit-id').value = sale.ID;
+        document.getElementById('monthly-sales-delete-btn').style.display = 'inline-block';
+        
+        // Populate form fields
+        document.getElementById('monthly-sales-branch').value = sale.Branch;
+        document.getElementById('monthly-sales-year').value = sale.Year;
+        document.getElementById('monthly-sales-month').value = sale.Month;
+        document.getElementById('monthly-sales-delivery-count').value = sale.DeliveryCount;
+        document.getElementById('monthly-sales-percentage').value = sale.Percentage;
+        document.getElementById('monthly-sales-amount').value = sale.Amount;
+      }
+    } else {
+      // Add new monthly sales
+      document.getElementById('monthly-sales-form-title').innerHTML = '<i class="fas fa-plus"></i> Add Monthly Sales';
+      document.getElementById('monthly-sales-submit-btn').textContent = 'Add Monthly Sales';
+      document.getElementById('monthly-sales-edit-id').value = '';
+      document.getElementById('monthly-sales-delete-btn').style.display = 'none';
+      document.getElementById('monthly-sales-form').reset();
+      
+      // Set current year and month as defaults
+      document.getElementById('monthly-sales-year').value = currentYear;
+      document.getElementById('monthly-sales-month').value = currentMonth;
+    }
+  }
+
+  function deleteMonthlySales(id) {
+    if (confirm('Are you sure you want to delete this monthly sales record? This cannot be undone.')) {
+      const index = sampleData.monthlySales.findIndex(s => s.ID === id);
+      if (index !== -1) {
+        sampleData.monthlySales.splice(index, 1);
+        updateDataAndRefresh();
+        showNotification('Monthly sales record deleted successfully!', 'success');
+      }
+    }
+  }
+
+  // --- FORM HANDLING ---
+  document.getElementById('branch-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validateBranchForm()) return;
+    
+    const isEdit = document.getElementById('branch-edit-id').value;
+    
+    const branchData = {
+      'Branch Name': document.getElementById('branch-name').value,
+      City: document.getElementById('branch-city').value,
+      direction: document.getElementById('branch-direction').value,
+      AREA: document.getElementById('branch-area').value,
+      'Land line': document.getElementById('branch-landline').value,
+      'Google site': document.getElementById('branch-google-site').value,
+      RATE: document.getElementById('branch-rate').value,
+      'Manger name': document.getElementById('branch-manager').value,
+      'Number manager': '', // Will be populated from manager data
+      'Email address': document.getElementById('branch-email').value,
+      'Delivery status': document.getElementById('branch-delivery-status').value,
+      'Link online': document.getElementById('branch-link-online').value,
+      'Number bikes': document.getElementById('branch-num-bikes').value,
+      'Number driver': document.getElementById('branch-num-drivers').value,
+      'Talabat device': document.getElementById('branch-talabat-device').value,
+      'Noon device': document.getElementById('branch-noon-device').value,
+      'Careen device': document.getElementById('branch-careem-device').value,
+      'Deliveroo device': document.getElementById('branch-deliveroo-device').value,
+      'Smile device': document.getElementById('branch-smile-device').value,
+      'Talabana device': document.getElementById('branch-talabana-device').value
+    };
+    
+    // Get manager phone number
+    const manager = sampleData.managers.find(m => m.Name === branchData['Manger name']);
+    if (manager) {
+      branchData['Number manager'] = manager.Phone;
+    }
+    
+    if (isEdit) {
+      // Update existing branch
+      const index = sampleData.branches.findIndex(b => b.ID == isEdit);
+      if (index !== -1) {
+        sampleData.branches[index] = { ...sampleData.branches[index], ...branchData };
+        showNotification('Branch updated successfully!', 'success');
+      }
+    } else {
+      // Add new branch
+      const newId = Math.max(...sampleData.branches.map(b => b.ID), 0) + 1;
+      sampleData.branches.push({ ID: newId, ...branchData });
+      showNotification('Branch added successfully!', 'success');
+    }
+    
+    closeForm('branch-form-popup');
+    updateDataAndRefresh();
+  });
+
+  document.getElementById('driver-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const phone = document.getElementById('driver-phone').value;
+    if (!validatePhone(phone)) {
+      showNotification('Please enter a valid phone number', 'error');
+      return;
+    }
+    
+    const email = document.getElementById('driver-email').value;
+    if (email && !validateEmail(email)) {
+      showNotification('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    const isEdit = document.getElementById('driver-edit-id').value;
+    
+    const driverData = {
+      Name: document.getElementById('driver-name').value,
+      Phone: phone,
+      Email: email,
+      Branch: document.getElementById('driver-branch').value,
+      License: document.getElementById('driver-license').value,
+      LicenseExpiry: document.getElementById('driver-license-expiry').value,
+      JoinDate: document.getElementById('driver-join-date').value,
+      Salary: parseFloat(document.getElementById('driver-salary').value) || 0,
+      Status: document.getElementById('driver-status').value
+    };
+    
+    if (isEdit) {
+      // Update existing driver
+      const index = sampleData.drivers.findIndex(d => d.ID == isEdit);
+      if (index !== -1) {
+        sampleData.drivers[index] = { ...sampleData.drivers[index], ...driverData };
+        showNotification('Driver updated successfully!', 'success');
+      }
+    } else {
+      // Add new driver
+      const newId = Math.max(...sampleData.drivers.map(d => d.ID), 0) + 1;
+      sampleData.drivers.push({ ID: newId, ...driverData });
+      showNotification('Driver added successfully!', 'success');
+    }
+    
+    closeForm('driver-form-popup');
+    updateDataAndRefresh();
+  });
+
+  document.getElementById('manager-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const phone = document.getElementById('manager-phone').value;
+    if (!validatePhone(phone)) {
+      showNotification('Please enter a valid phone number', 'error');
+      return;
+    }
+    
+    const email = document.getElementById('manager-email').value;
+    if (email && !validateEmail(email)) {
+      showNotification('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    const isEdit = document.getElementById('manager-edit-id').value;
+    
+    const managerData = {
+      Name: document.getElementById('manager-name').value,
+      Phone: phone,
+      Email: email,
+      Branch: document.getElementById('manager-branch').value,
+      JoinDate: document.getElementById('manager-join-date').value,
+      Salary: parseFloat(document.getElementById('manager-salary').value) || 0,
+      Status: document.getElementById('manager-status').value
+    };
+    
+    if (isEdit) {
+      // Update existing manager
+      const index = sampleData.managers.findIndex(m => m.ID == isEdit);
+      if (index !== -1) {
+        sampleData.managers[index] = { ...sampleData.managers[index], ...managerData };
+        showNotification('Manager updated successfully!', 'success');
+      }
+    } else {
+      // Add new manager
+      const newId = Math.max(...sampleData.managers.map(m => m.ID), 0) + 1;
+      sampleData.managers.push({ ID: newId, ...managerData });
+      showNotification('Manager added successfully!', 'success');
+    }
+    
+    closeForm('manager-form-popup');
+    updateDataAndRefresh();
+  });
+
+  document.getElementById('agent-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const phone = document.getElementById('agent-phone').value;
+    if (!validatePhone(phone)) {
+      showNotification('Please enter a valid phone number', 'error');
+      return;
+    }
+    
+    const email = document.getElementById('agent-email').value;
+    if (email && !validateEmail(email)) {
+      showNotification('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    const isEdit = document.getElementById('agent-edit-id').value;
+    
+    const agentData = {
+      Name: document.getElementById('agent-name').value,
+      Phone: phone,
+      Email: email,
+      Area: document.getElementById('agent-area').value,
+      Commission: parseFloat(document.getElementById('agent-commission').value) || 0,
+      JoinDate: document.getElementById('agent-join-date').value,
+      Status: document.getElementById('agent-status').value
+    };
+    
+    if (isEdit) {
+      // Update existing agent
+      const index = sampleData.agents.findIndex(a => a.ID == isEdit);
+      if (index !== -1) {
+        sampleData.agents[index] = { ...sampleData.agents[index], ...agentData };
+        showNotification('Agent updated successfully!', 'success');
+      }
+    } else {
+      // Add new agent
+      const newId = Math.max(...sampleData.agents.map(a => a.ID), 0) + 1;
+      sampleData.agents.push({ ID: newId, ...agentData });
+      showNotification('Agent added successfully!', 'success');
+    }
+    
+    closeForm('agent-form-popup');
+    updateDataAndRefresh();
+  });
+
+  document.getElementById('monthly-sales-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const isEdit = document.getElementById('monthly-sales-edit-id').value;
+    
+    const salesData = {
+      Branch: document.getElementById('monthly-sales-branch').value,
+      Year: parseInt(document.getElementById('monthly-sales-year').value),
+      Month: parseInt(document.getElementById('monthly-sales-month').value),
+      DeliveryCount: parseInt(document.getElementById('monthly-sales-delivery-count').value) || 0,
+      Percentage: parseFloat(document.getElementById('monthly-sales-percentage').value) || 0,
+      Amount: parseFloat(document.getElementById('monthly-sales-amount').value) || 0
+    };
+    
+    if (isEdit) {
+      // Update existing monthly sales
+      const index = sampleData.monthlySales.findIndex(s => s.ID == isEdit);
+      if (index !== -1) {
+        sampleData.monthlySales[index] = { ...sampleData.monthlySales[index], ...salesData };
+        showNotification('Monthly sales updated successfully!', 'success');
+      }
+    } else {
+      // Add new monthly sales
+      const newId = Math.max(...sampleData.monthlySales.map(s => s.ID), 0) + 1;
+      sampleData.monthlySales.push({ ID: newId, ...salesData });
+      showNotification('Monthly sales added successfully!', 'success');
+    }
+    
+    closeForm('monthly-sales-form-popup');
+    updateDataAndRefresh();
+  });
+
+  // --- DELETE BUTTONS ---
+  document.getElementById('branch-delete-btn').addEventListener('click', function() {
+    const id = document.getElementById('branch-edit-id').value;
+    deleteBranch(id);
+  });
+
+  document.getElementById('driver-delete-btn').addEventListener('click', function() {
+    const id = document.getElementById('driver-edit-id').value;
+    deleteDriver(id);
+  });
+
+  document.getElementById('manager-delete-btn').addEventListener('click', function() {
+    const id = document.getElementById('manager-edit-id').value;
+    deleteManager(id);
+  });
+
+  document.getElementById('agent-delete-btn').addEventListener('click', function() {
+    const id = document.getElementById('agent-edit-id').value;
+    deleteAgent(id);
+  });
+
+  document.getElementById('monthly-sales-delete-btn').addEventListener('click', function() {
+    const id = document.getElementById('monthly-sales-edit-id').value;
+    deleteMonthlySales(id);
+  });
+
+  // --- EXPORT FUNCTIONS ---
+  function exportAllData() {
+    // Create a combined export with all data
+    const exportData = {
+      branches: sampleData.branches,
+      drivers: sampleData.drivers,
+      managers: sampleData.managers,
+      agents: sampleData.agents,
+      monthlySales: sampleData.monthlySales,
+      excelSalesData: app.excelSalesData,
+      exportDate: new Date().toISOString()
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = 'crispy-chicken-all-data.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    showNotification('All data exported successfully!', 'success');
+  }
+
+  function exportData(section) {
+    let dataToExport;
+    let fileName;
+    
+    switch(section) {
+      case 'branches':
+        dataToExport = getFilteredBranches();
+        fileName = 'crispy-chicken-branches.csv';
+        break;
+      case 'drivers':
+        dataToExport = getFilteredDrivers();
+        fileName = 'crispy-chicken-drivers.csv';
+        break;
+      case 'managers':
+        dataToExport = getFilteredManagers();
+        fileName = 'crispy-chicken-managers.csv';
+        break;
+      case 'agents':
+        dataToExport = getFilteredAgents();
+        fileName = 'crispy-chicken-agents.csv';
+        break;
+      case 'monthly-sales':
+        dataToExport = getFilteredSales();
+        fileName = 'crispy-chicken-monthly-sales.csv';
+        break;
+      default:
+        return;
+    }
+    
+    // Convert to CSV
+    if (dataToExport.length > 0) {
+      const headers = Object.keys(dataToExport[0]);
+      const csvContent = [
+        headers.join(','),
+        ...dataToExport.map(item => 
+          headers.map(header => `"${item[header] || ''}"`).join(',')
+        )
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', url);
+      linkElement.setAttribute('download', fileName);
+      linkElement.click();
+      
+      URL.revokeObjectURL(url);
+      showNotification(`${section.charAt(0).toUpperCase() + section.slice(1)} data exported successfully!`, 'success');
+    } else {
+      showNotification(`No ${section} data to export!`, 'error');
+    }
+  }
+
+  // --- UTILITY FUNCTIONS ---
+  function closeForm(formId) {
+    document.getElementById(formId).style.display = 'none';
+  }
+
+  function showNotification(message, type) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 5000);
+  }
+
+  function getMonthName(monthNumber) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[monthNumber - 1];
+  }
+
+  function showLoading(elementId) {
+    document.getElementById(elementId).style.display = 'block';
+  }
+
+  function hideLoading(elementId) {
+    document.getElementById(elementId).style.display = 'none';
+  }
+
+  function updateDataAndRefresh() {
+    saveDataToLocalStorage();
+    updateDashboardCounters();
+    updateSalesChart();
+    updateBranchMarkers();
+    
+    // Refresh the current section
+    switch(app.activeSection) {
+      case 'branches':
+        renderBranches();
+        break;
+      case 'drivers':
+        renderDrivers();
+        break;
+      case 'managers':
+        renderManagers();
+        break;
+      case 'agents':
+        renderAgents();
+        break;
+      case 'sales':
+        renderMonthlySales();
+        break;
+      case 'excel-sales':
+        renderExcelSales();
+        break;
+    }
+  }
+
+  // --- VALIDATION FUNCTIONS ---
+  function validateBranchForm() {
+    const direction = document.getElementById('branch-direction').value;
+    if (direction && direction !== 'new brunch') {
+      const coords = direction.split(',').map(Number);
+      if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
+        showNotification('Please enter valid coordinates (lat, lng)', 'error');
+        return false;
+      }
+    }
+    
+    const phone = document.getElementById('branch-landline').value;
+    if (phone && !validatePhone(phone)) {
+      showNotification('Please enter a valid phone number', 'error');
+      return false;
+    }
+    
+    const email = document.getElementById('branch-email').value;
+    if (email && !validateEmail(email)) {
+      showNotification('Please enter a valid email address', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  function validatePhone(phone) {
+    // Remove all non-digit characters for validation
+    const cleanedPhone = phone.replace(/\D/g, '');
+    // UAE phone numbers are typically 9 digits after country code
+    return cleanedPhone.length >= 9 && cleanedPhone.length <= 15;
+  }
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+</script>
+
 </body>
 </html>
